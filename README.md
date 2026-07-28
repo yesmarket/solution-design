@@ -55,7 +55,10 @@ work standalone and assumes no filesystem, no code execution, and no subagents. 
 commands are ergonomics for Claude Code only.
 
 Every invocation drafts and **stops for approval** before writing. That rule lives in
-the skill workflow, not the commands, so a malformed alias cannot bypass it.
+the skill workflow, not the commands, so a malformed alias cannot bypass it. In Claude
+Code the gate is a pick list (write it / revise first / do not write) via
+`AskUserQuestion`; on claude.ai, which has no such tool, it falls back to a plain text
+question.
 
 ## Portability
 

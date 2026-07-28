@@ -20,10 +20,10 @@ the page.
    sections, even if the brain dump contains material that belongs there. If it does,
    say so at the end and offer. Do not write.
 3. **Always show the draft and ask whether to proceed before writing.** These are
-   shared pages under active review and a bad write is expensive to unpick. Prompt
-   directly, for example "Shall I write this to the page?", rather than silently
-   waiting for the user to volunteer an approval word. A plain "yes", "go ahead", or
-   similar affirmative reply to that prompt is sufficient to proceed.
+   shared pages under active review and a bad write is expensive to unpick. Ask with
+   the interactive question tool (`AskUserQuestion` in Claude Code) so the user picks
+   an option instead of typing an approval word. See "Asking the user" below. Never
+   silently wait for the user to volunteer approval.
 4. **Never invent technical facts.** If the brain dump is thin, write what is
    supported and list the specific gaps. A short honest section beats a padded one.
 
@@ -40,6 +40,7 @@ have:
 | Confluence write | Every section | Draft and output copy-pasteable content, tell the user the write is blocked |
 | Confluence search | Applicable Reference Architectures, Glossary cross-check | Ask the user for candidate RA links |
 | Lucid / diagram | Current Solution, Target Solution, Infrastructure | Ask for an image paste or a written description |
+| Interactive question (`AskUserQuestion`) | The approval gate, and any either/or question | Ask the same question as plain text in chat |
 
 Resolve exact tool names and parameter schemas at call time rather than relying on
 memory of them. They differ between the claude.ai Atlassian connector and the Claude
@@ -63,10 +64,34 @@ must work from tool calls and chat output alone.
 5. **Draft the content.**
 6. **Show the user the proposed content and ask whether to proceed with the write.**
    Render as markdown in chat, with a one line note on what will be replaced versus
-   appended, followed by a direct prompt such as "Shall I write this to the page?".
-   Do not just show the draft and wait; ask.
-7. **On an affirmative reply, splice and write.**
+   appended, then put the approval gate to the user per "Asking the user" below. Do
+   not just show the draft and wait; ask.
+7. **On approval, splice and write.**
 8. **Confirm** with the page URL and a one line summary of what changed.
+
+## Asking the user
+
+Every question this skill puts to the user goes through the interactive question tool
+(`AskUserQuestion` in Claude Code) when it is available, so the answer is a click
+rather than typed text. That covers the approval gate, which page to target when it is
+ambiguous, which column mapping to use when the page headers do not match the
+reference file, and any either/or judgement call in a section reference.
+
+The approval gate is always the same three options, in this order:
+
+| Option | Meaning |
+|---|---|
+| Write it to the page | Splice and write exactly what was shown |
+| Revise first | Do not write. Take the user's changes and show the draft again |
+| Do not write | Leave the page untouched. Output the draft for manual copy-paste |
+
+Keep option labels short enough to read at a glance and put the recommended one first.
+The tool always offers a free text escape, so do not add an "other" option yourself,
+and do not ask a question whose answer is already in the conversation.
+
+Where the tool is unavailable, for example on claude.ai, fall back to a direct text
+prompt such as "Shall I write this to the page?" and treat a plain "yes" or "go ahead"
+as sufficient to proceed.
 
 ## Section index
 
