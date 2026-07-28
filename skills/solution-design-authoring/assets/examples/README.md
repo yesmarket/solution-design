@@ -1,6 +1,10 @@
 # Exemplar Designs
 
-Drop 2 or 3 detailed designs here that you would hold up as good. PDF exports are fine.
+Drop 2 or 3 detailed designs here that you would hold up as good. PDF exports are fine,
+but a pointer is usually better, see `sources.md` in this directory: three exemplars
+(Small, Medium, Big) are already sourced as Confluence page links rather than stored
+files, with their extracts pulled into the reference files below and a size-calibration
+table in `SKILL.md`. Add a fourth the same way if you want another point on the range.
 
 ## Why they matter more than the rules
 

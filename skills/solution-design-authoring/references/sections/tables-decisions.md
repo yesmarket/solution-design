@@ -80,6 +80,25 @@ Note what happened to the input:
   Scope table. Mention it to the user; do not write it.
 - Every Implications bullet is a real cost. None restate the benefit.
 
+### Worked example: real row, and a rule tension it surfaces
+
+From NZ DC Migration, see `../../assets/examples/sources.md`. Included because its
+Rationale and Implications bullets run well past the "12 words or fewer" guideline
+above, several exceed 30 words, and this is a real, presumably reviewed and endorsed
+row, not a draft:
+
+| Decision | Rationale | Implications | Other Options Considered |
+|---|---|---|---|
+| Retain a limited on-premises estate to host payment HSMs and Mastercard Interface Processors until card platforms are decommissioned | <ul><li>Payment HSMs and MIPs are hardware appliances with no compatible managed AWS service</li><li>Existing Thales payShield 9K HSMs are out of vendor support since Jan 2023 but remain operational and integrated with production workloads</li><li>Mastercard MIPs are vendor managed physical appliances recently upgraded, reducing near term operational risk</li><li>PCI QSA confirmed retaining out of support HSMs is acceptable given a planned migration and compensating controls</li></ul> | <ul><li>Card platforms dependent on these devices are expected to retire under a future programme by approximately EOY 2027, pending endorsement</li><li>Two production HSMs must be maintained with workload separation as a compensating control</li></ul> | <ul><li>Migrate to FutureX HSMaaS</li><li>Alternative HSMaaS or MIPSaaS offering</li></ul> |
+
+<!-- NOTE(Ryan): decide whether the 12 word and 5 word bullet guidance above stays as
+     an aspirational tightening for new rows, or whether the schema should explicitly
+     permit longer bullets for a decision this consequential (an out of support HSM
+     retained in a PCI environment, with a QSA consultation behind it). The row above
+     is real and was presumably endorsed at this length. Flagging rather than silently
+     loosening the rule, since it is prescriptive above and this plugin should not
+     quietly contradict itself between the rule and its own example. -->
+
 ### Rejected output patterns
 
 | Anti pattern | Example | Fix |

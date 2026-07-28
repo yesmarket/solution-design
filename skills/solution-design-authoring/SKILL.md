@@ -98,6 +98,54 @@ Cross cutting references, read as needed:
 - `references/diagrams.md` - how to obtain and read a diagram. Read before Current
   Solution, Target Solution, or Infrastructure.
 
+## Right-sizing
+
+A Detailed Design should be proportionate to the work it describes, not a fixed
+template filled in regardless of scope. Both failure modes are real review problems,
+not just style preferences:
+
+- **Too big for the work** wastes a reviewer's time restating the obvious, and buries
+  the few decisions that matter under sections that did not need to exist.
+- **Too small for the work** gives false confidence that something complex has been
+  thought through when it has not, most often visible as an empty Risks table on a
+  design that clearly has risks, or a Key Design Decisions table missing a row for a
+  choice the narrative already asserts as settled.
+
+`assets/examples/sources.md` carries three house exemplars that calibrate the range:
+
+| Size | Exemplar | Rough shape |
+|---|---|---|
+| Small | Managed Instinct | ~2,800 words, 6 decision rows. A single vendor migration. Risk table present but empty, correctly, the work did not surface one. |
+| Medium | SSO/Federation HLD for Humm Loan | ~9,800 words. One capability built for reuse by future merchants, not just the first two. Deeper security and telemetry detail than Small because it introduces new attack surface. |
+| Big | NZ DC Migration | ~19,000 words, 26 decisions, 9 DREAD-rated risks. A genuine multi-workstream programme (a data warehouse, microservices, a fraud platform, an RPA platform, HSMs, AD, office networking). One page, not split into child pages, and the length comes from distinct components and decisions rather than restating the same idea three times. |
+
+The Big exemplar is close to a natural ceiling for a single Confluence page. If a
+design grows past it, the right move is splitting out the largest table, Key Design
+Decisions is usually the biggest, or a per-workstream appendix, rather than compressing
+content that genuinely needs the space.
+
+**Signals a design is bigger than its scope:**
+
+- The same fact is restated in two or three sections instead of one section
+  cross-referencing another
+- A prose section runs past 5 paragraphs without introducing new information
+- Components Impacted carries rows for systems with no deliverable change and no
+  regression risk worth flagging (compare the legitimate "no deliberate change,
+  regression test the login flow" pattern in `tables-decisions.md`, that earns a row,
+  padding does not)
+
+**Signals a design is smaller than its scope:**
+
+- Risks, Assumptions, or Issues are empty and the conversation clearly contains
+  candidates the user has not yet turned into a row
+- Key Design Decisions has no row for a choice the narrative sections state as decided
+- Components Impacted lists fewer systems than the Target Solution diagram shows
+
+When drafting the first section of a new design, or in audit mode, form a view of
+where the work sits on this spectrum and say so once. It recalibrates how much is
+enough for every section that follows, and it is cheaper to correct at Background &
+Context than after ten sections have been drafted to the wrong scale.
+
 ## House style
 
 Applies to every section. Section references may tighten these but never relax them.
@@ -142,4 +190,8 @@ When asked to review or audit a design rather than write a section:
    named in Target Solution but missing from Components Impacted; decisions referenced
    in narrative but absent from Key Design Decisions; risks with no residual rating;
    assumptions marked validated with no validator named.
-5. Output as a single table in chat. Write nothing to the page in audit mode.
+5. Check right-sizing against the scope of work, per the section above: sections
+   restating the same fact more than once, prose running long without new information,
+   or an empty Risks or Assumptions table on a design that clearly has candidates for
+   one, are findings worth a line even when every section is technically present.
+6. Output as a single table in chat. Write nothing to the page in audit mode.

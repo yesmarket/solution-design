@@ -13,6 +13,7 @@ across 22 command files would guarantee drift.
 ```
 solution-design/
 ├── .claude-plugin/plugin.json
+├── .mcp.json                        bundles the Atlassian and Lucid MCP servers
 ├── commands/                        22 thin aliases pointing at the skill
 ├── tools/generate_commands.py       regenerate the aliases from one table
 └── skills/solution-design-authoring/
@@ -27,7 +28,9 @@ solution-design/
     │       ├── tables-decisions.md  Key Design Decisions, Components Impacted
     │       ├── tables-registers.md  Risks, Assumptions, Issues, Dependencies, Constraints
     │       └── tables-scope.md      Glossary, Scope In, Scope Out, Reference Architectures
-    └── assets/examples/             drop your exemplar designs here
+    └── assets/examples/
+        ├── README.md                 how to use exemplars, why extracts beat whole PDFs
+        └── sources.md                Confluence page links for the 3 house exemplars
 ```
 
 The 21 sections group into four behaviours: prose, diagram plus callouts, append one
@@ -69,25 +72,47 @@ quality on three sections rather than blocking the plugin.
 - Confluence search, for Applicable Reference Architectures
 - A Lucid MCP server, for Current Solution, Target Solution, and Infrastructure
 
+The plugin's `.mcp.json` declares the official remote servers for both (`mcp.atlassian.com`
+and `mcp.lucid.app`), so installing the plugin in Claude Code offers to wire these up
+automatically. Both are OAuth based: the first call opens a browser to authorise, per
+user, per machine. This is a Claude Code CLI mechanism only; claude.ai does not read
+plugin-declared MCP servers, so the skill's capability probe (see Portability, above)
+still matters there. If your organisation already runs a different Atlassian or Lucid
+MCP server (a self hosted `sooperset/mcp-atlassian`, for example), point `.mcp.json` at
+that instead, the skill dispatches on capability, not on which server is behind it.
+
 ## Before first real use
 
-1. **Verify the macro markup.** `references/confluence-macros.md` carries best known
-   forms for the decision macro, the status macro, and tick and cross, but macro
-   storage format varies by Confluence version. Fetch a real Humm design that already
-   uses them, copy the exact markup, and paste it into the `VERIFIED MARKUP` slots in
-   that file. Do the decision macro first, since Key Design Decisions is the most
-   frequently appended table and a broken macro will replicate across every row.
-2. **Confirm the risk aggregation rule.** `tables-registers.md` defaults to a mean of
-   the DREAD sub values for the overall rating. That is a placeholder. Replace it with
-   whatever Humm's risk framework actually prescribes.
-3. **Drop 2 or 3 exemplar designs into `assets/examples/`** and fill the `TODO(Ryan)`
-   blocks in `narrative.md` and `considerations.md` with verbatim extracts.
+1. ~~Verify the macro markup.~~ **Done 2026-07-28.** `references/confluence-macros.md`
+   now carries markup verified against three real Humm pages fetched via this
+   Atlassian MCP server: the status, decision, and tick macros all render as
+   `data-type="..."` HTML attributes, not the classic `ac:*` storage XML originally
+   guessed at. The `ac:*` forms are kept as a fallback for a connector that returns
+   storage format instead; re-verify against a real page before trusting them there.
+   Two things this pass did not resolve: no `data-state` value other than `DECIDED` was
+   observed, and no cross (unvalidated) example exists in the sample, only ticks.
+2. ~~Confirm the risk aggregation rule.~~ **Done 2026-07-28.** All three exemplars use
+   a Possibility/Impact pair as the headline Rating and Residual Rating, never a
+   separate averaged "Overall". `tables-registers.md` now reflects this; the DREAD
+   sub-attributes, where used, are supporting narrative for that judgement call, not
+   inputs to a formula. See `assets/examples/sources.md`.
+3. **Keep `assets/examples/sources.md` current.** It points at Confluence page IDs
+   rather than storing PDFs, so the extracts spliced into `narrative.md`,
+   `considerations.md`, `tables-decisions.md`, `tables-registers.md`, and
+   `confluence-macros.md` stay traceable to a real page instead of going stale. When you
+   add a new exemplar, add its link and size band to `sources.md` first, then pull the
+   extract. The same three pages also anchor the Right-sizing section in `SKILL.md`
+   (Small/Medium/Big); add a fourth exemplar there too if the range needs another point.
 4. **Verify the heading and column alias tables** in `confluence-mechanics.md` against
    real pages. This is what makes template drift survivable and the most likely thing
    to be wrong on day one.
 5. **Test the splice on a scratch page.** Specifically test a section containing an info
    panel and an embedded Lucid diagram, since preserving macros and embeds is where a
    read modify write edit does real damage.
+6. **Decide on the bullet length tension in `tables-decisions.md`.** The real Key
+   Design Decisions row pulled from NZ DC Migration runs well past the "12 words or
+   fewer" guideline. Flagged there as a `NOTE(Ryan)` rather than silently loosened,
+   since it is a real, presumably endorsed row contradicting a prescriptive rule.
 
 ## Conventions
 

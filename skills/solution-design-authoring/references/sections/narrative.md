@@ -160,12 +160,93 @@ any that do not, at the end of your chat response. Do not write to that table.
 
 ## Style calibration
 
-<!-- TODO(Ryan): once you have dropped example designs into ../../assets/examples/,
-     replace this block with verbatim extracts of a Background & Context section and a
-     Target Solution callout list you consider exemplary. The callout register in
-     particular is hard to specify in rules and easy to demonstrate. -->
+Two contrasting Background & Context extracts, and one Target Solution callout list,
+pulled from the house exemplars in `../../assets/examples/sources.md` (fetched
+2026-07-28). See that file for links and redaction notes.
 
-Until house examples are present, calibrate to: dense, specific, no adjectives that
-could be deleted without loss of meaning. Roughly the register of a well written AWS
-reference architecture document, with the Current and Target callouts pitched a level
-above that.
+### Exemplar: Background & Context, straightforward case
+
+From Managed Instinct (Small), a single vendor migration. Note the pattern: driver,
+then a plain enumeration of what has to keep working, nothing else:
+
+> The migration of GBG Instinct from on-premises to GBG's managed PaaS is primarily an
+> integration effort. While GBG operates the Instinct platform in their Azure
+> environment, Humm Group must ensure that all integrations supported in the
+> self-hosted deployment continue to function on the new platform.
+>
+> Key integrations to be re-established include:
+> - Fraud checks from our application decisioning engine (Capture)
+> - Instinct integration to 4th-party services (e.g., EmailAge, Ekata, SecureBank)
+> - Data integration to our data platform (Snowflake)
+> - Web portal authentication logs to our managed SIEM
+> - Reverse file-based integration to GBG Predator
+> - Uploading of neg files
+
+### Exemplar: Background & Context, complex case
+
+From NZ DC Migration (Big), a multi-workstream programme. Note the different pattern
+this scope earns: a lessons-learned framing, naming which prior migration attempts
+were tried and abandoned, before stating the current plan. This is longer than the 2
+to 4 paragraph guideline above, proportionate to a programme with four independent
+workstreams behind it, not padding; see Right-sizing in `SKILL.md`.
+
+> Background & Context
+>
+> Humm Group is executing a multi-year strategy to progressively retire its
+> on-premises data centre (DC) infrastructure and transition to a fully cloud-based
+> operating model. This strategy aims to reduce infrastructure risk, improve
+> scalability and resilience, and align technology platforms with future product and
+> business direction.
+>
+> The NZ DCs play a critical role in supporting both NZ and AU cards products. These
+> include [products] in New Zealand, as well as [product] in Australia. The NZ estate
+> therefore underpins core revenue-generating payment and lending capabilities across
+> multiple markets.
+>
+> Humm Group currently operates two on-premises DCs in NZ:
+> - Orbit, located at [address]
+> - Kapua, located at [address]
+>
+> The NZ DC migration represents the third and final phase of Humm Group's broader DC
+> exit program. The Sydney DCs have already been fully migrated to AWS, and the
+> Adelaide migration is currently in progress. Unlike the Australian migrations, the NZ
+> migration introduces additional complexity and constraints that prevent a complete
+> on-premises exit.
+
+*(The source continues for roughly 12,000 characters covering four numbered
+workstreams, each with its own migration history. Truncated here; the pattern, not the
+full length, is the point.)*
+
+### Exemplar: Target Solution callouts
+
+From NZ DC Migration. Above this list sits a full page embedded diagram image (plain
+upload, not a live Lucid embed on this page). Note how these state what is retained
+and why, not just what changes, and are explicit about the trust and protocol
+boundaries the diagram itself cannot show:
+
+> - Decommission on-premises compute and storage, reducing DC footprint while ensuring
+>   business continuity
+> - Retain a limited on-premises estate including the Thales payShield HSMs and
+>   Mastercard MIPS until card platforms are decommissioned
+> - Retain the on-premises FortiGate firewall supporting the direct circuit until card
+>   platforms are decommissioned or the connection is migrated to an AWS site to site
+>   VPN
+> - Retain AWS Direct Connect via Megaport for low latency connectivity between AWS and
+>   on-prem
+> - Decommission the Megaport link and pipes to Azure and Global Storage
+> - Maintain site to site VPN connectivity for legacy EFTPOS payment processing
+> - Host containerised microservices in AWS EKS with multiple smaller nodes for
+>   efficient orchestration and scalability
+> - Route internal service to service traffic via an internal ALB with TLS termination
+>   representing the defined secure boundary
+> - Maintain PCI DSS compliance across all migrated workloads
+
+This runs to 16 callouts on the source page, past the 5 to 10 house guideline. Real
+practice at this scale exceeds the guideline; treat 5 to 10 as the floor for a small
+design and expect a big one to run longer, not as a hard ceiling to trim a genuinely
+big design down to.
+
+Calibrate everything else to: dense, specific, no adjectives that could be deleted
+without loss of meaning. Roughly the register of a well written AWS reference
+architecture document, with the Current and Target callouts pitched a level above
+that.

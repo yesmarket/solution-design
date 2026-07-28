@@ -78,6 +78,44 @@ burying one is worse than not writing the section.
 Where a risk emerges that warrants DREAD scoring, note it for the Risks table rather
 than rating it here.
 
+### Exemplar
+
+From Managed Instinct, see `../../assets/examples/sources.md`. Five groupings, each a
+short flat list, no group padded to look proportionate to the others:
+
+> **Data Transfer & Encryption**
+> - ADF retrieves Instinct data via secure SFTP connections
+> - All files exposed by Instinct will be encrypted and signed using GPG
+> - ADF ingestion into Snowflake lands data in AWS S3 via secure SFTP transfer
+> - TLS 1.2 or above is enforced at the vendor managed Front Door for all API
+>   integrations
+>
+> **Network Controls**
+> - Strict IP allow-listing enforced for SFTP integrations, API integrations, and web
+>   portal access, each restricted to a named source
+> - Instinct is protected behind a vendor managed WAF
+> - Access to the Instinct web portal requires a VPN connection routed through Prisma
+>   Access (ZTNA, CASB, NGFW)
+>
+> **Authentication & Identity**
+> - Instinct web portal authentication is federated via SSO to our Entra ID tenant
+> - Authentication events from Entra ID are integrated into the CCX Splunk SIEM for
+>   monitoring and detection
+>
+> **Secrets & Credentials Management**
+> - ADF retrieves all sensitive credentials, SSH keys, and integration secrets directly
+>   from Azure Key Vault with proper RBAC and auditing
+>
+> **Data Retention**
+> - Data files provided by the vendor are purged immediately after successful
+>   processing within our environment
+> - On the vendor side, data is retained for up to 7 days before automatic removal per
+>   their retention policy
+
+Note the last group: a retention fact about the vendor's side of the boundary, stated
+because it is relevant to this design, not because every section needs a Data
+Retention group.
+
 ---
 
 ## Regulatory, Compliance, and Privacy Considerations
@@ -147,6 +185,38 @@ re specifying from scratch. Link it and state the deltas.
 
 Be honest about instrumentation that will not exist at go live. A telemetry section
 describing an aspiration is how systems reach production unmonitored.
+
+### Exemplar
+
+From SSO/Federation HLD for Humm Loan, see `../../assets/examples/sources.md`. Bold
+labels rather than subheadings, and a scope limitation stated up front rather than
+implied:
+
+> **Scope Limitation**
+> This project exclusively implements telemetry integration for the new SCIM Server
+> API.
+>
+> **Deployment Architecture**
+> The SCIM Server API is deployed as a container based AWS Lambda function.
+>
+> **Log Forwarding Requirements**
+> Logs must be forwarded to both the CCX managed Splunk SIEM and Elastic Cloud
+> (observability platform).
+>
+> **Splunk SIEM Integration**
+> Uses an established pattern involving a CloudWatch Logs subscription filter.
+>
+> **Elastic Cloud Integration**
+> A Lambda subscription filter will be defined. Note: AWS Data Firehose cannot be used
+> for Elastic Cloud integration due to an incompatibility.
+>
+> **Alerting & Incident Response**
+> Alert rules will be configured within Elastic Cloud. Notifications and escalation
+> will be managed via Splunk On-Call integration.
+
+Note the two log destinations are named as a requirement ("must be forwarded to both"),
+not softened, and the Firehose incompatibility is stated as a specific fact rather than
+smoothed into "some integration constraints exist."
 
 ---
 

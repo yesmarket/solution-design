@@ -49,46 +49,57 @@ to write it to the right one instead.
 | Column | Format |
 |---|---|
 | Risk | Short description, 1 sentence |
-| Rating | DREAD breakdown where applicable, otherwise Possibility and Impact. See below |
+| Rating | A Possibility/Impact pair, e.g. `Low/High`. DREAD sub-attributes as supporting bullets where the risk is security flavoured. See below |
 | Impact | Short bullet points, 2 to 4 |
 | Mitigation | Short bullet points, 2 to 4 |
 | Residual Rating | Same format as Rating, after mitigations are applied |
 
 ### Rating methodology
 
-Every sub value is one of **Very High**, **High**, **Medium**, **Low**.
+**Confirmed against three real Humm designs** (Managed Instinct, SSO/Federation HLD,
+NZ DC Migration; see `../../assets/examples/sources.md`): the headline Rating and
+Residual Rating are always a **Possibility/Impact pair**, for example `Low/High`. None
+of the three sampled pages derive a separate "Overall" value by averaging sub-scores.
+This replaces the earlier placeholder rule (mean of DREAD sub-values, round up on a
+tie), which did not match any of the three real pages.
+
+Every sub value, where used, is one of **Very High**, **High**, **Medium**, **Low**.
 
 **Use DREAD for security risks**: threats, vulnerabilities, and anything where an
-adversary is part of the story. DREAD is a threat modelling method and it does not fit
-delivery, commercial, or operational risks.
+adversary is part of the story. DREAD's five sub-attributes appear as **bulleted
+supporting narrative underneath the Possibility/Impact headline**, explaining the
+judgement call rather than feeding a formula that produces it:
 
 ```
+Rating: Low / High
 - Damage: High
-- Reproducibility: Medium
+- Reproducibility: Low
 - Exploitability: Low
 - Affected Users: High
-- Discoverability: Medium
-- Overall: Medium
+- Discoverability: Low
 ```
 
-**Use Possibility and Impact for everything else**: delivery slippage, cost overrun,
-vendor behaviour, capacity, operational failure.
+(worked from the NZ DC Migration on-prem HSM risk: Possibility rated Low because
+hardware failure is not attacker driven or easily reproducible, Impact rated High
+because it is loss of card transaction processing capability, even though two of the
+five DREAD sub-attributes are independently High. The pair is not the arithmetic mean
+of the five sub-values, it is a separate judgement informed by them.)
+
+**Use Possibility and Impact alone for everything else**: delivery slippage, cost
+overrun, vendor behaviour, capacity, operational failure. No sub-attribute breakdown.
 
 ```
-- Possibility: Medium
-- Impact: High
-- Overall: High
+Rating: Medium / High
 ```
 
-**Deriving Overall.** Default rule: score Low 1, Medium 2, High 3, Very High 4, take
-the mean of the sub values, round up on a tie. State the resulting band.
+**Setting the Possibility/Impact pair is an authorial judgement.** Propose it directly
+using the DREAD breakdown (where one exists) as supporting evidence in the cell. Do not
+present a formula to the user as though it produces the pair; if the brain dump does
+not support a confident Possibility or Impact value, propose one and mark it clearly
+for the user to confirm rather than deriving it mechanically.
 
-<!-- TODO(Ryan): this default is a placeholder. Confirm it against Humm's actual risk
-     framework, and if the framework prescribes a different aggregation, replace this
-     rule. Do not leave two competing methods in circulation. -->
-
-Do not mix methods within one document. If existing rows use Possibility and Impact and
-this new risk is a security risk, ask before introducing DREAD rather than producing a
+Do not mix methods within one document. If existing rows include a DREAD breakdown and
+this new risk is not security flavoured, ask before omitting it rather than producing a
 table where rows are not comparable.
 
 If the brain dump does not support a rating, propose one and mark it clearly for the
@@ -131,12 +142,28 @@ a session validity check on each portal request."*
 
 | Risk | Rating | Impact | Mitigation | Residual Rating |
 |---|---|---|---|---|
-| If portal and Cognito session lifetimes diverge, users may reach an inconsistent partially authenticated state. | <ul><li>Possibility: Medium</li><li>Impact: High</li><li>Overall: High</li></ul> | <ul><li>Users see partial access to portal functions</li><li>Support load from unexplained login failures</li><li>Likely to surface first in production</li></ul> | <ul><li>Set portal session lifetime strictly shorter than Cognito session</li><li>Validate session state on each portal request</li><li>Add negative test cases at expiry boundaries</li></ul> | <ul><li>Possibility: Low</li><li>Impact: High</li><li>Overall: Medium</li></ul> |
+| If portal and Cognito session lifetimes diverge, users may reach an inconsistent partially authenticated state. | Medium/High | <ul><li>Users see partial access to portal functions</li><li>Support load from unexplained login failures</li><li>Likely to surface first in production</li></ul> | <ul><li>Set portal session lifetime strictly shorter than Cognito session</li><li>Validate session state on each portal request</li><li>Add negative test cases at expiry boundaries</li></ul> | Low/High |
 
 Possibility and Impact was used rather than DREAD, correctly: this is a correctness and
 operability risk, not a threat. The third mitigation was added because the user said it
 was hard to test for. Inferring that mitigation from the input is fair. Inventing an
 owner would not be.
+
+### Worked example: real DREAD row
+
+From the NZ DC Migration exemplar (see `../../assets/examples/sources.md`), lightly
+trimmed. This is a security flavoured risk, so the DREAD sub-attributes sit as
+supporting bullets under the Possibility/Impact headline rather than replacing it:
+
+| Risk | Rating | Impact | Mitigation | Residual Rating |
+|---|---|---|---|---|
+| Failure or irreversible degradation of on-prem payment HSM infrastructure could result in partial or total loss of card transaction processing capability, compounded by possible delay to the programme that plans to decommission these HSMs. | Low/High<ul><li>Damage: High</li><li>Reproducibility: Low</li><li>Exploitability: Low</li><li>Affected Users: High</li><li>Discoverability: Low</li></ul> | <ul><li>Loss of card transaction processing capability</li><li>Affects the entire cards portfolio</li></ul> | <ul><li>Maintain two production HSMs with workload separation</li><li>On single HSM failure, engage an external HSM provider as contingency</li><li>Retain a test HSM that can be repurposed for production with vendor assistance if required</li></ul> | Low/Medium |
+
+Note what the DREAD breakdown is doing here: two of the five sub-attributes are
+independently High (Damage, Affected Users), yet the headline stays Low/High rather
+than shifting toward High/High. The breakdown is evidence for the judgement call, not
+an input a formula averages. If your draft finds itself computing a mean to reach the
+headline, stop, that is the placeholder rule this file no longer uses.
 
 ---
 
