@@ -22,7 +22,7 @@ dump clearly contains two decisions, draft the first, write it, then offer the s
 | Decision | Short sentence, declarative, active voice. **Decision macro.** | 1 sentence, 20 words or fewer |
 | Rationale | Bullet points | 2 to 4 bullets, 12 words or fewer each |
 | Implications | Bullet points | 2 to 4 bullets, 12 words or fewer each |
-| Other Options Considered | Bullet points, names only | 2 to 4 bullets, **5 words or fewer each** |
+| Other Options Considered | Bullet points, names only | 1 to 4 bullets, **5 words or fewer each** |
 
 ### Column rules
 
@@ -41,12 +41,13 @@ uncomfortable ones: added latency, new operational burden, a dependency on anoth
 team, a licence uplift. A row where Implications are all upside has not been thought
 through. Push back on the user rather than writing it.
 
-**Other Options Considered** are names only, 5 words or fewer, no evaluation. The
-reader wants to know the option space was explored; the reasons live in Rationale. If
-the brain dump gives a long description of a rejected option, compress it to a name and
-drop the rest. Never write "N/A": if no alternatives were considered, ask what else was
-on the table, because there is almost always "do nothing" or "keep the existing
-approach".
+**Other Options Considered** are names only, 5 words or fewer, no evaluation. A single
+option is enough if that is genuinely all that was considered; do not pad to look more
+thorough than the brain dump supports. The reader wants to know the option space was
+explored; the reasons live in Rationale. If the brain dump gives a long description of a
+rejected option, compress it to a name and drop the rest. Never write "N/A": if no
+alternatives were considered, ask what else was on the table, because there is almost
+always "do nothing" or "keep the existing approach".
 
 ### Worked example
 

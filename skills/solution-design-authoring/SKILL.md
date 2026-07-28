@@ -19,8 +19,11 @@ the page.
 2. **One section per invocation.** Never opportunistically fill in neighbouring
    sections, even if the brain dump contains material that belongs there. If it does,
    say so at the end and offer. Do not write.
-3. **Always show the draft and stop for approval before writing.** These are shared
-   pages under active review and a bad write is expensive to unpick.
+3. **Always show the draft and ask whether to proceed before writing.** These are
+   shared pages under active review and a bad write is expensive to unpick. Prompt
+   directly, for example "Shall I write this to the page?", rather than silently
+   waiting for the user to volunteer an approval word. A plain "yes", "go ahead", or
+   similar affirmative reply to that prompt is sufficient to proceed.
 4. **Never invent technical facts.** If the brain dump is thin, write what is
    supported and list the specific gaps. A short honest section beats a padded one.
 
@@ -58,9 +61,11 @@ must work from tool calls and chat output alone.
 4. **For table sections, map to the columns that exist on the page**, not the columns
    in the reference file. See `references/confluence-mechanics.md`.
 5. **Draft the content.**
-6. **Show the user the proposed content and stop.** Render as markdown in chat, with a
-   one line note on what will be replaced versus appended.
-7. **On approval, splice and write.**
+6. **Show the user the proposed content and ask whether to proceed with the write.**
+   Render as markdown in chat, with a one line note on what will be replaced versus
+   appended, followed by a direct prompt such as "Shall I write this to the page?".
+   Do not just show the draft and wait; ask.
+7. **On an affirmative reply, splice and write.**
 8. **Confirm** with the page URL and a one line summary of what changed.
 
 ## Section index

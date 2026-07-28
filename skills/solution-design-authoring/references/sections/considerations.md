@@ -10,21 +10,27 @@ Infrastructure is diagram led and has its own rules at the end of this file. Rea
 ## Shared shape
 
 A short prose lead in of one or two sentences framing what is relevant for this design,
-followed by grouped bullets under bold labels or subheadings. Not a wall of prose, and
-not an ungrouped bullet dump.
+followed by grouped bullets. **Each category is itself a top level dot point, bold, with
+its details as nested dot points underneath**, not a bold heading sitting outside the
+list. Not a wall of prose, and not an ungrouped bullet dump.
 
 ```
 The federated login path introduces a new server side token minting capability
 and a new signing key. Existing Cognito controls are unchanged.
 
-**Authentication & Authorisation**
-- Cognito remains the sole identity provider, the portal never issues credentials
-- ...
+- **Authentication & Authorisation**
+  - Cognito remains the sole identity provider, the portal never issues credentials
+  - ...
 
-**Secrets & Key Management**
-- Session signing key stored in Azure Key Vault, rotated quarterly
-- ...
+- **Secrets & Key Management**
+  - Session signing key stored in Azure Key Vault, rotated quarterly
+  - ...
 ```
+
+In Confluence storage format this is a `<ul>` whose `<li>` holds the bold category text
+followed by a nested `<ul>` of detail bullets, not a `<p>` heading followed by a
+sibling list. Applies to every section below unless a section's own example says
+otherwise.
 
 ## Shared constraints
 
@@ -115,6 +121,10 @@ short flat list, no group padded to look proportionate to the others:
 Note the last group: a retention fact about the vendor's side of the boundary, stated
 because it is relevant to this design, not because every section needs a Data
 Retention group.
+
+Quoted verbatim from a real page, so the category labels above are shown as bold text
+above a sibling list, the older convention on that page. Draft new sections per Shared
+shape instead: each category as its own dot point, with its details nested underneath.
 
 ---
 
