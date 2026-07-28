@@ -1,0 +1,14 @@
+{
+  "name": "solution-design",
+  "description": "Author Solution Architecture Detailed Design sections into Confluence, one section at a time, following the house template and formatting conventions.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Ryan"
+  },
+  "keywords": [
+    "architecture",
+    "confluence",
+    "detailed-design",
+    "solution-design"
+  ]
+}
