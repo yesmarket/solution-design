@@ -51,11 +51,29 @@ loads per invocation.
 /glossary                               no input, scans page and session
 /reference-architectures                no input, searches Confluence
 /target-solution <brain dump>           reads the diagram, writes callouts
+/security -r <extra context>            refines what is on the page, keeps your edits
 /glossary-scan                          whole page, walks candidate terms one by one
 /acronym-sweep                          whole page, normalises acronym expansion
 /dd-audit <page url>                    read only completeness review
 /write-pending                          writes every queued section in one write
 ```
+
+**Refining content that is already there.** The ten prose sections take `-r` (or
+`--refine`), which makes the section's current page content the input rather than drafting
+over it. `-r` on its own normalises to house style and changes nothing factual, which is the
+cheapest way to pull a section back on template after editing it in Confluence or with Rovo.
+`-r <context>` folds new context into what is there. Without the flag, a section that already
+has content prompts first: refine, replace entirely, append, or cancel, with the current
+content shown so you can see what a replace would cost. Nothing gets silently overwritten,
+because a hand edited paragraph is indistinguishable from a generated one.
+
+Refine may fix style, structure and wording, and may cut, but it may not change technical
+facts, settled decisions, or anything it cannot corroborate: a fact it does not recognise is
+treated as something you added, not as noise. Refines queue like anything else, and a
+conflicted refine is re-derived against the current content rather than overwriting the newer
+edit. Table sections do not refine, they append; edit an existing row in Confluence.
+`/dd-audit` reports off-template sections as **Drifted** so style drift is visible without
+reading every section.
 
 **Queue several sections, write once.** Every gate offers *queue it and continue* as well
 as *write it now*, so you can run `/scope-in`, then `/scope-out`, then `/assumption`,
@@ -64,10 +82,47 @@ Confluence write instead of three: faster, and fewer windows for a concurrent se
 lose work in. Risks and Key Design Decisions still gate one row at a time, so queueing
 buys the write saving without giving up per-row review.
 
-The queue lives in `~/.claude/solution-design/pending/<pageId>/`, one file per pending
-entry, append only so two terminals cannot clobber it. It survives a terminal restart and
-is shared per page, so two sessions queueing different sections of one page flush
-together. On claude.ai, which has no filesystem, the queue is held in the conversation
+### Where the queue is stored
+
+```
+~/tmp/solution-design/pending/<pageId>/<nnn>-<section-slug>.json
+
+~/tmp/solution-design/pending/4915523641/001-scope-in.json
+~/tmp/solution-design/pending/4915523641/002-scope-out.json
+```
+
+One file per pending entry, append only so two terminals cannot clobber it, sequence
+numbered so the apply order is fixed and two terminals cannot pick the same filename. The
+page id keys the directory because titles change; the title is stored inside the entry so
+listings stay readable. Nothing needs creating up front, the first write makes the
+directories.
+
+**Under your home directory, never under the repo.** This plugin gets used from many
+different repositories and a scratch file inside one of them ends up in a `git add -A`.
+The skill resolves your home directory at runtime rather than carrying a hardcoded path,
+so it behaves the same on any machine, and it refuses to write the queue if the resolved
+location would land inside the working directory. It also will not use a session scoped
+scratch directory, since those are discarded between sessions and the queue exists
+precisely to survive a restart.
+
+Because it sits outside the project directory, Claude Code prompts on first use unless
+these are allowed in `~/.claude/settings.json`:
+
+```json
+"Write(~/tmp/solution-design/**)",
+"Read(~/tmp/solution-design/**)",
+"Bash(rm -f ~/tmp/solution-design/pending/*)"
+```
+
+Home relative patterns keep the same settings file working across devices. If a
+`~`-prefixed pattern does not match on your setup, use `//` for a path from the filesystem
+root, for example `Write(//Users/you/tmp/solution-design/**)`, which is device specific and
+so worth putting in that device's settings rather than a shared one.
+
+The `rm` rule only clears entries after a successful flush and is scoped to that one
+directory. Skip it if you would rather approve each cleanup: a flush that writes
+successfully but cannot clear its entries reports that plainly, and the conflict check stops
+those entries from being applied twice. On claude.ai, which has no filesystem, the queue is held in the conversation
 instead and the skill says so when you first queue something. Drafting checks that read
 the page also read the queue: acronym first use, dedupe, the In Scope versus Out of Scope
 contradiction check, and `/dd-audit`, which states what is pending rather than reporting a

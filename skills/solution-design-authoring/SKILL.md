@@ -1,6 +1,6 @@
 ---
 name: solution-design-authoring
-description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
+description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
 ---
 
 # Solution Design Authoring
@@ -78,21 +78,26 @@ pending write queue, and the skill degrades to a conversation held queue without
    compare against both before writing.
 4. **For table sections, map to the columns that exist on the page**, not the columns
    in the reference file. See `references/confluence-mechanics.md`.
-5. **Draft the content.**
-6. **Show the user the proposed content and ask whether to proceed with the write.**
+5. **For replace mode sections, decide refine versus replace before drafting.** `-r` in the
+   arguments selects refine. Otherwise, if the section already has content, show it and ask.
+   See `references/refine.md`.
+6. **Draft the content.** For a refine, the existing section body is the input.
+7. **Show the user the proposed content and ask whether to proceed with the write.**
    Render as markdown in chat, with a one line note on what will be replaced versus
    appended and which version you drafted against, then put the approval gate to the user
-   per "Asking the user" below. Do not just show the draft and wait; ask.
-7. **If the user chose to queue rather than write, store the entry and stop here.** No
+   per "Asking the user" below. Do not just show the draft and wait; ask. For a refine, show
+   a before and after rather than only the result.
+8. **If the user chose to queue rather than write, store the entry and stop here.** No
    fetch, no write. Confirm what is pending and that the page is unchanged. See
    `references/pending-writes.md`.
-8. **On approval to write, write fetch: fetch the body again**, with nothing between that
+9. **On approval to write, write fetch: fetch the body again**, with nothing between that
    fetch and the write. Compare its version and its copy of your target section against
    what you recorded in step 3, splice the approved content onto **this** body, and write
    with the version set explicitly. See "Concurrent sessions" in
    `references/confluence-mechanics.md` for what to do when the version has moved.
-9. **Confirm** with the page URL, the version you wrote, and a one line summary of what
-   changed. Verify the heading set and the macro and image counts survived.
+10. **Confirm** with the page URL, the version you wrote, and a one line summary of what
+    changed. Verify the heading set and the macro and image counts survived. Where content
+    was replaced, say that the previous version is in page history.
 
 ## Asking the user
 
@@ -151,6 +156,10 @@ as sufficient to proceed.
 | Data and Information Considerations | Prose | Replace | `sections/considerations.md` |
 | Infrastructure, Network, & Integration | Diagram + prose | Replace prose, keep diagram | `sections/considerations.md` |
 
+The ten sections with a **Replace** write mode accept `-r` to refine what is already on the
+page instead of drafting over it, and prompt before replacing non-empty content. The eleven
+table sections do neither: they append. See "Refining a section that already has content".
+
 ### Batch tables versus one at a time
 
 **Batch** tables take every item the brain dump supports in a single invocation. Draft
@@ -161,6 +170,29 @@ invocations wastes a full page read and write per row for no benefit.
 user needs to weigh individually: a decision's rationale and implications, a risk's
 Possibility/Impact pair. Batching them produces rows nobody actually reviewed. If a
 brain dump clearly contains several, draft the first, write it, then offer the next.
+
+### Refining a section that already has content
+
+The ten replace mode sections above accept **`-r`** (or `--refine`) as the first token of
+their arguments. Refine takes the section's **current content on the page as the input**,
+folds in whatever context follows the flag, and writes it back improved. `-r` on its own
+means normalise to house style and change nothing factual, which is the usual move after a
+hand edit or a Rovo edit in Confluence.
+
+**When a replace mode section already has content and no `-r` was passed, show what is
+there and ask before drafting**: refine, replace entirely, append, or cancel. Never
+silently overwrite existing content. You cannot tell a hand edited paragraph from one you
+wrote, so treat everything on the page as content the user may want kept.
+
+Refine may fix style, structure, and wording, and may cut. It **may not** change technical
+facts, settled decisions, or anything it cannot corroborate: a fact you do not recognise is
+most likely something the user added and you never saw. Review a refine as a before and
+after, not as a fresh draft.
+
+**Table sections do not refine.** They append rows, and an existing row is edited in
+Confluence. If `-r` arrives on a table section, say so and offer to append instead.
+
+Full contract in `references/refine.md`.
 
 ### Bare lists for Assumptions, Issues, Dependencies, and Constraints
 
@@ -179,6 +211,8 @@ Cross cutting references, read as needed:
 - `references/pending-writes.md` - the queue: draft several sections, write once. Read
   when a section is queued, when the user asks what is pending, and before
   `/write-pending`.
+- `references/refine.md` - refining a section that already has content, the `-r` flag, and
+  the replace gate. Read whenever `-r` is passed or a replace mode section is not empty.
 - `references/confluence-macros.md` - decision macro, status macro, tick and cross.
   Read before writing Key Design Decisions, Components Impacted, or Assumptions.
 - `references/diagrams.md` - how to obtain and read a diagram. Read before Current
@@ -305,7 +339,8 @@ When asked to review or audit a design rather than write a section:
 2. Map present headings against the section index above.
 3. Report per section: **Missing**, **Empty** (heading present, no content or
    placeholder text), **Thin** (present but under specified, for example Risks with no
-   mitigations or Key Design Decisions with empty Other Options Considered), or **OK**.
+   mitigations or Key Design Decisions with empty Other Options Considered), **Drifted**
+   (content is there but off house style, see step 6), or **OK**.
 4. Cross check for consistency: acronyms used but absent from Glossary; components
    named in Target Solution but missing from Components Impacted; decisions referenced
    in narrative but absent from Key Design Decisions; risks with no residual rating;
@@ -314,6 +349,12 @@ When asked to review or audit a design rather than write a section:
    restating the same fact more than once, prose running long without new information,
    or an empty Risks or Assumptions table on a design that clearly has candidates for
    one, are findings worth a line even when every section is technically present.
+6. **Flag house style drift.** Sections edited outside this skill, by hand or by Rovo, drift
+   off template: em dashes, non Australian spelling, nested bullets in the two flat sections,
+   an acronym expanded a second time, hedging on a settled decision, sentences where cell
+   fragments belong. Report these as **Drifted**, naming the specific violation, and note
+   that `-r` on that section fixes style without touching facts. This is the most common
+   finding on a page that has been edited in Confluence between authoring sessions.
 6. Output as a single table in chat. Write nothing to the page in audit mode.
 
 If sections are pending in the write queue, **say so before the table and list them.** The

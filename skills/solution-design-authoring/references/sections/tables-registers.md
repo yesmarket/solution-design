@@ -66,7 +66,11 @@ same column, and write to the heading as it exists on the page rather than silen
 correcting it. Mention it to the user once.
 
 **Deduplicate.** Check for an existing row on the same underlying concern before
-appending. If one exists, ask whether to amend rather than adding a near duplicate.
+appending. If one exists, say so and do not append a near duplicate. **This skill does not
+edit existing rows**, so offer the two things it can do: append a distinct row where the new
+input is genuinely a different concern, or leave it and let the user edit the existing row in
+Confluence. Tell them what you would have changed so the edit is a copy and paste, not a
+re-derivation.
 
 **Cell style.** Fragments, no trailing full stops on bullets, bullets for multi part
 content. Single sentence columns take a full stop.

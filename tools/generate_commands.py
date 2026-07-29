@@ -31,6 +31,14 @@ BATCH_ROWS = {
 # references/sections/tables-registers.md.
 BARE_LIST = {"assumption", "issue", "dependency", "constraint"}
 
+# Replace-mode sections. These accept -r to refine what is already on the page, and must
+# ask before overwriting non-empty content. Table sections append and do neither. See
+# references/refine.md.
+REFINABLE = {
+    "background-context", "solution-overview", "current-solution", "target-solution",
+    "security", "compliance", "cost", "telemetry", "data", "infrastructure",
+}
+
 # (command slug, canonical section name, short description for the command palette)
 SECTIONS = [
     ("background-context", "Background & Context",
@@ -118,6 +126,18 @@ BARE_LIST_NOTE = """\
 Input: expect a bare newline separated list, bullet markers optional. One non-empty line
 is one row. **Derive the consequence column yourself**, do not ask the user for it, and
 use the user's own wording where a line already states its consequence."""
+
+REFINE_NOTE = """\
+If the arguments begin with **`-r`** or **`--refine`**, refine instead of drafting fresh:
+the section's current content on the page is the input, anything after the flag is extra
+context, and `-r` alone means normalise to house style without changing any facts. Strip the
+flag before using the rest as context.
+
+Otherwise, **if this section already has content, show it and ask** whether to refine,
+replace entirely, append, or cancel, before drafting anything. Never overwrite existing
+content without asking: a hand edited or Rovo edited paragraph is indistinguishable from one
+you wrote. Read `references/refine.md` first in either case, and review a refine as a before
+and after rather than as a fresh draft."""
 
 AUDIT = """\
 ---
@@ -248,6 +268,8 @@ def mode_note(slug: str) -> str:
         if slug in BARE_LIST:
             return f"{BATCH_NOTE}\n\n{BARE_LIST_NOTE}"
         return BATCH_NOTE
+    if slug in REFINABLE:
+        return REFINE_NOTE
     return ""
 
 

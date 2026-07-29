@@ -64,14 +64,64 @@ unavailable" at the end of this file.
 One directory per page, one file per pending entry:
 
 ```
-~/.claude/solution-design/pending/<pageId>/<nnn>-<section-slug>.json
+<home>/tmp/solution-design/pending/<pageId>/<nnn>-<section-slug>.json
 ```
 
+Worked example, a session with three sections queued against page `4915523641`, with
+`<home>` standing in for whatever the home directory resolves to on this machine:
+
+```
+<home>/tmp/solution-design/pending/4915523641/001-scope-in.json
+<home>/tmp/solution-design/pending/4915523641/002-scope-out.json
+<home>/tmp/solution-design/pending/4915523641/003-assumption.json
+```
+
+The `<home>` placeholder is not a literal. Resolve it before writing, and never copy an
+example path from this file into a tool call.
+
+### Resolving the path
+
+`<home>` is **the user's home directory, resolved at runtime.** Never hardcode one. Homes
+differ by platform (`/home/name`, `/Users/name`, `C:\Users\name`) and this plugin runs on
+more than one machine.
+
+- If the file tool expands `~`, write to `~/tmp/solution-design/pending/...` directly.
+- If it requires a fully absolute path, resolve the home directory once per session, for
+  example by reading `$HOME`, and reuse the resolved value. Do it once, not per entry.
+
+**Do not create the directory first.** The file write creates missing parents, so write the
+entry file directly at its full path. No `mkdir`, nothing to test for existence. `tmp`
+under home is a conventional scratch location; if it does not exist yet, writing the first
+entry creates it.
+
+### Never inside a repository
+
+**The queue must never be written inside the working directory.** This plugin is used from
+many different repositories, and a scratch file under one of them ends up in a
+`git add -A`, in a diff, or in a commit. Design content in a code repository is a leak
+waiting to happen.
+
+Before writing the first entry of a session, confirm the resolved queue path is **outside**
+the current working directory. If it is not, for example because the working directory is
+itself under home in a way that makes the paths overlap, or because a user supplied
+location resolves into the repo, **do not write it.** Say so and ask for a location outside
+the repository.
+
+Also never use a session scoped scratch directory, even when one is offered. Those are
+discarded between sessions, which defeats the one property the queue exists for: surviving
+a restart.
+
+If the user names a different location, use theirs, apply the same two tests, and say once
+where entries are going.
+
 - `<pageId>` is the Confluence page id, not the title. Titles change and are not safe as
-  keys.
+  keys. The page title lives inside the entry so listings stay readable.
 - `<nnn>` is a zero padded sequence number, one higher than the highest already in the
-  directory, starting at `001`.
+  directory, starting at `001`. It fixes the order entries are applied in and keeps two
+  terminals from choosing the same filename.
 - `<section-slug>` is the command slug, for example `scope-in`, `key-design-decision`.
+- The extension is always `.json`. Ignore any file in the directory that is not a `.json`
+  entry rather than trying to parse it.
 
 **One file per entry, written once and never rewritten.** This is deliberate: an
 append only queue cannot be clobbered by a second terminal, which is the same failure
@@ -111,6 +161,9 @@ correctly, which is the intended behaviour.
   check at flush possible. Both are mandatory.
 - `writeMode` is one of `replace-prose`, `replace-keep-diagram`, `append-rows`,
   `merge-dedupe`, matching the splice modes in `confluence-mechanics.md`.
+- `refinedFromPage` is `true` when the payload was derived from the section's existing
+  content rather than from a brain dump. It changes how a conflict resolves at flush, see
+  below. Omit it otherwise.
 
 Do not invent a timestamp field. Use the file's modification time if you need to reason
 about staleness.
@@ -189,6 +242,16 @@ delete an entry you dropped from the flush without saying so, and if the write f
 report which entries are still pending. A half consumed queue is worse than a failed
 flush because the user cannot tell what landed.
 
+**If the write succeeded but the cleanup did not**, because a delete was denied or errored,
+say so prominently: the sections are on the page and their entries are still in the queue.
+Name the files and ask the user to remove them. Do not report the flush as clean.
+
+That case degrades safely rather than double writing, because of the conflict check: a
+written but uncleaned entry now has a target section that differs from
+`targetSectionMarkupAtDraft`, since your own write changed it. The next flush holds it back
+automatically instead of appending its rows a second time. Rely on that as a backstop, not
+as a reason to skip reporting the failure.
+
 ## Conflicts at flush
 
 Per entry, compare `draftedAgainstVersion` and `targetSectionMarkupAtDraft` against the
@@ -204,6 +267,14 @@ sections landed, which did not, and what the page now says in each conflicted se
 versus what the entry holds. Then ask per conflicted entry whether to overwrite, merge,
 or discard.
 
+**A conflicted entry with `refinedFromPage` has only one sane resolution: re-derive it.**
+Its payload was built from content that no longer exists, so overwriting would discard the
+newer edit and merging two versions of the same prose is not meaningful. Do not offer
+overwrite. Say the section changed after the refine was queued, and offer to re-run the
+refine against the current content. This is the case that protects a Confluence or Rovo edit
+made while a refine sat in the queue, which is exactly the sequence to expect when the user
+is working in both places.
+
 Holding back rather than cancelling the whole flush is deliberate. One stale entry should
 not block five good ones, and partial success is safe here **only because it is reported
 precisely.** Say which entries remain pending, every time.
@@ -211,6 +282,14 @@ precisely.** Say which entries remain pending, every time.
 ## Discarding and editing pending entries
 
 - **List** on request: read the directory, render the summaries.
+**Write shell paths with `~/`, not an expanded home.** Where a step needs a shell command,
+clearing flushed entries being the only one, write it as
+`rm -f ~/tmp/solution-design/pending/<pageId>/<file>` rather than substituting the resolved
+home directory. The shell expands the tilde, and a permission rule written against `~/` only
+matches a command that literally contains `~/`, so an expanded path turns a pre approved
+cleanup into a prompt. File tool paths are the opposite case: those need the resolved
+absolute path.
+
 - **Discard one**: delete its file, confirm which section is no longer pending.
 - **Discard all**: delete the directory contents, and state the count so an accidental
   discard is visible immediately.

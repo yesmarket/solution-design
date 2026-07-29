@@ -127,9 +127,13 @@ row, not a draft:
 ### Before appending
 
 Scan existing rows for a decision covering the same question. If one exists and the new
-input supersedes it, do not append: tell the user and ask whether to amend the existing
-row. If it is a different question in the same area, append, and make the Decision
-wording distinguish the two clearly.
+input supersedes it, do not append. **This skill does not edit existing rows**, so tell the
+user which row is superseded, show the wording you would have put in it, and let them edit it
+in Confluence. A superseded decision left sitting next to its replacement is worse than
+either alone, because reviewers cannot tell which one is current.
+
+If it is a different question in the same area, append, and make the Decision wording
+distinguish the two clearly.
 
 ---
 

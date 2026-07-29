@@ -202,7 +202,14 @@ effect of an unrelated edit.
 ## Splice rules by write mode
 
 **Replace prose** - discard the existing section body, insert the new body. Keep the
-heading element byte identical.
+heading element byte identical. **If the section is not empty, do not choose this mode
+unilaterally**: offer refine instead, per `refine.md`. Discarding content the user wrote by
+hand or via Rovo is indistinguishable from discarding your own earlier draft, and only one
+of those is safe.
+
+**Refine prose** - the same splice as replace prose, but the new body is derived from the
+existing one rather than from a brain dump. Mechanically identical, reviewed differently:
+show a before and after. See `refine.md`.
 
 **Replace callouts, keep diagram** - used by Current Solution, Target Solution, and
 Infrastructure. Copy the diagram element verbatim into the new body in its original
