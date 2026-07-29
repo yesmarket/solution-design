@@ -22,6 +22,10 @@ approved wording changes to that copy**, per "Concurrent sessions" in
 sweep against the new body rather than writing the old one. Do not run this while another
 session is writing to the same page.
 
+If sections are pending in the write queue, **flush them first** with `/write-pending`. A
+sweep of a body that is missing queued sections is wrong the moment they land. Say so and
+let the user decide rather than sweeping around them.
+
 Page reference, or any acronyms to focus on:
 
 $ARGUMENTS

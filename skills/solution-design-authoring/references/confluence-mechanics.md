@@ -102,6 +102,10 @@ The skill cannot serialise sessions it cannot see, so some of this is on the aut
 
 - **Safest is one session per page at a time.** Parallel terminals on one page are what
   produced the clobbering.
+- **Queue rather than write, then flush once.** Fewer writes means fewer windows in which
+  a concurrent save can be lost. The queue directory is shared per page, so two terminals
+  queueing different sections of one page flush together correctly. See
+  `pending-writes.md`.
 - **Never two sessions on the same section**, even briefly. Two sessions on different
   sections of the same page is survivable because of the write fetch, but only if both
   follow it.
@@ -219,9 +223,16 @@ append only those. Report the count skipped. Match loosely when deduping. For Gl
 only, also sort the whole table alphabetically after merging, preserving existing
 descriptions verbatim.
 
+**Flush several sections** - used by `/write-pending`. Apply each queued entry's own write
+mode from the list above, in document order, onto one freshly fetched body, then write
+once. Each splice lands in a different section, so boundaries must not overlap: if two
+entries resolve to the same heading, stop and ask rather than applying both. Full protocol
+in `pending-writes.md`.
+
 For every append mode, **check for a near duplicate before adding.** Re recording an
 existing design decision with slightly different wording is worse than not recording it,
-because reviewers cannot tell which is current.
+because reviewers cannot tell which is current. Where entries are pending in the queue,
+dedupe against those too; they are rows that exist, just not yet on the page.
 
 ## Storage format reference
 

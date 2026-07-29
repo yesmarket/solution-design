@@ -88,14 +88,17 @@ Section: **{section}**
 
 {mode}
 
-Follow the skill's workflow: read the section reference file, fetch the current page
-body, draft, then show the proposed content and put the approval gate to the user as
-selectable options (`AskUserQuestion`), not a free text question, before writing
-anything to Confluence.
+Follow the skill's workflow: check for pending writes on the target page, read the section
+reference file, fetch the current page body, draft, then show the proposed content and put
+the approval gate to the user as selectable options (`AskUserQuestion`), not a free text
+question, before writing anything to Confluence.
 
-On approval, **fetch the body again and splice onto that fresh copy**, never onto the
-body you drafted from, and send the version explicitly. Another session may have saved
-in the meantime and a stale body overwrites its work silently.
+The gate offers **write now, queue it and continue, revise, or discard.** If the user
+queues it, store a pending entry and write nothing, per `references/pending-writes.md`.
+
+If the user writes now, **fetch the body again and splice onto that fresh copy**, never
+onto the body you drafted from, and send the version explicitly. Another session may have
+saved in the meantime and a stale body overwrites its work silently.
 
 Context supplied by the user (may be empty for derived sections):
 
@@ -125,6 +128,10 @@ Use the `solution-design-authoring` skill in **audit mode**.
 
 Do not write anything to Confluence. Report findings as a single table in chat.
 
+If sections are pending in the write queue, list them before the table and state that the
+findings reflect the page as it stands, not the pending work. A queued section otherwise
+reads as Missing when it is drafted and waiting.
+
 Page reference and any focus areas:
 
 $ARGUMENTS
@@ -152,6 +159,10 @@ Merge, sort, and write once at the end.
 Walking the candidates takes a while, so the body you read at the start is stale by the
 time you write. **Re fetch immediately before the single write and splice onto that
 copy**, per "Concurrent sessions" in `references/confluence-mechanics.md`.
+
+Include any sections pending in the write queue in the scan, since a candidate that is
+queued but not yet written is still a candidate. Say how many pending sections you
+covered.
 
 Page reference, or any terms the user wants forced into the list:
 
@@ -183,7 +194,41 @@ approved wording changes to that copy**, per "Concurrent sessions" in
 sweep against the new body rather than writing the old one. Do not run this while another
 session is writing to the same page.
 
+If sections are pending in the write queue, **flush them first** with `/write-pending`. A
+sweep of a body that is missing queued sections is wrong the moment they land. Say so and
+let the user decide rather than sweeping around them.
+
 Page reference, or any acronyms to focus on:
+
+$ARGUMENTS
+"""
+
+WRITE_PENDING = """\
+---
+description: Write every queued section to the page in a single Confluence write
+---
+
+Use the `solution-design-authoring` skill.
+
+Read `references/pending-writes.md` before starting, and
+`references/confluence-mechanics.md` for the splice and version rules.
+
+Flush the pending write queue for the target page:
+
+1. List every pending entry with its section, write mode, and the content as it was
+   approved. Show the content, not just the section names: this is the last review before
+   the page changes.
+2. Take **one** approval for the whole flush via `AskUserQuestion`, offering write all,
+   drop specific entries, or cancel. Do not re ask per entry.
+3. Fetch the body once, hold back any entry whose target section has changed since it was
+   queued, splice the rest in document order, and write once with the version set
+   explicitly and a version comment naming every section written.
+4. Verify, then delete only the entry files that were written. Report precisely what
+   landed and what is still pending.
+
+A failed write leaves the whole queue intact. Never delete an entry that was not written.
+
+Page reference, or specific sections to flush:
 
 $ARGUMENTS
 """
@@ -192,6 +237,7 @@ STANDALONE = {
     "dd-audit": AUDIT,
     "glossary-scan": GLOSSARY_SCAN,
     "acronym-sweep": ACRONYM_SWEEP,
+    "write-pending": WRITE_PENDING,
 }
 
 

@@ -22,7 +22,9 @@ the page.
    section, not one row: most table sections take every row the brain dump supports in
    a single pass, see the section index. The only exceptions to the one section rule
    are the two whole document sweeps, `/glossary-scan` and `/acronym-sweep`, which by
-   definition read the entire page, and only one of which writes across sections.
+   definition read the entire page, and only one of which writes across sections. Queueing
+   a section for a later batched write does not relax this: one invocation still drafts
+   one section, the write is simply deferred.
 3. **Always show the draft and ask whether to proceed before writing.** These are
    shared pages under active review and a bad write is expensive to unpick. Ask with
    the interactive question tool (`AskUserQuestion` in Claude Code) so the user picks
@@ -51,21 +53,25 @@ have:
 | Confluence search | Applicable Reference Architectures, Glossary cross-check | Ask the user for candidate RA links |
 | Lucid / diagram | Current Solution, Target Solution, Infrastructure | Ask for an image paste or a written description |
 | Interactive question (`AskUserQuestion`) | The approval gate, and any either/or question | Ask the same question as plain text in chat |
+| Filesystem read and write | Persisting the pending write queue across invocations | Keep the queue in the conversation only, and say so once. See `references/pending-writes.md` |
 
 Resolve exact tool names and parameter schemas at call time rather than relying on
 memory of them. They differ between the claude.ai Atlassian connector and the Claude
 Code Atlassian MCP server, and they change between versions.
 
-Assume no filesystem, no code execution, and no subagents. Everything this skill does
-must work from tool calls and chat output alone.
+Assume no code execution and no subagents. Everything this skill does must work from tool
+calls and chat output alone. A filesystem is used for one thing only, persisting the
+pending write queue, and the skill degrades to a conversation held queue without it.
 
 ## Workflow
 
 1. **Resolve the target page.** If the user gave a URL, page ID, or title, use it. If
    a page was established earlier in the session, reuse it and state which page you
    are writing to. Otherwise ask once.
-2. **Read the section reference file** for the requested section. Do this before
-   drafting, not after.
+2. **Check for pending writes on that page** and read the section reference file for the
+   requested section. Do both before drafting, not after. Pending entries are part of the
+   page's effective state and several drafting checks depend on them. See
+   `references/pending-writes.md`.
 3. **Draft fetch: fetch the current page body.** Always. You need the existing content
    for context, the surrounding markup, and for table sections the actual column headers.
    **Record the version number and the target section's current markup**; you will
@@ -77,12 +83,15 @@ must work from tool calls and chat output alone.
    Render as markdown in chat, with a one line note on what will be replaced versus
    appended and which version you drafted against, then put the approval gate to the user
    per "Asking the user" below. Do not just show the draft and wait; ask.
-7. **On approval, write fetch: fetch the body again**, with nothing between that fetch and
-   the write. Compare its version and its copy of your target section against what you
-   recorded in step 3, splice the approved content onto **this** body, and write with the
-   version set explicitly. See "Concurrent sessions" in
+7. **If the user chose to queue rather than write, store the entry and stop here.** No
+   fetch, no write. Confirm what is pending and that the page is unchanged. See
+   `references/pending-writes.md`.
+8. **On approval to write, write fetch: fetch the body again**, with nothing between that
+   fetch and the write. Compare its version and its copy of your target section against
+   what you recorded in step 3, splice the approved content onto **this** body, and write
+   with the version set explicitly. See "Concurrent sessions" in
    `references/confluence-mechanics.md` for what to do when the version has moved.
-8. **Confirm** with the page URL, the version you wrote, and a one line summary of what
+9. **Confirm** with the page URL, the version you wrote, and a one line summary of what
    changed. Verify the heading set and the macro and image counts survived.
 
 ## Asking the user
@@ -93,13 +102,20 @@ rather than typed text. That covers the approval gate, which page to target when
 ambiguous, which column mapping to use when the page headers do not match the
 reference file, and any either/or judgement call in a section reference.
 
-The approval gate is always the same three options, in this order:
+The approval gate is always the same four options:
 
 | Option | Meaning |
 |---|---|
 | Write it to the page | Splice and write exactly what was shown |
+| Queue it and continue | Hold the draft as a pending write, change nothing on the page |
 | Revise first | Do not write. Take the user's changes and show the draft again |
 | Do not write | Leave the page untouched. Output the draft for manual copy-paste |
+
+**Order them by the mode the user is in.** `Write it to the page` goes first for the first
+section of a session; once anything is pending, `Queue it and continue` goes first,
+because batching is evidently what the user is doing. Queueing exists so several sections
+can be drafted and reviewed, then written in one operation, which is both faster and
+safer than one write per section. Full protocol in `references/pending-writes.md`.
 
 Keep option labels short enough to read at a glance and put the recommended one first.
 The tool always offers a free text escape, so do not add an "other" option yourself,
@@ -160,6 +176,9 @@ Cross cutting references, read as needed:
 
 - `references/confluence-mechanics.md` - splice rules, heading matching, storage
   format. Read before any write.
+- `references/pending-writes.md` - the queue: draft several sections, write once. Read
+  when a section is queued, when the user asks what is pending, and before
+  `/write-pending`.
 - `references/confluence-macros.md` - decision macro, status macro, tick and cross.
   Read before writing Key Design Decisions, Components Impacted, or Assumptions.
 - `references/diagrams.md` - how to obtain and read a diagram. Read before Current
@@ -246,7 +265,9 @@ Applies to every section. Section references may tighten these but never relax t
 ## Acronyms and the Glossary
 
 First use is **first use in the whole document, not first use in your section.** You
-have already fetched the page body, so check it before you draft.
+have already fetched the page body, so check it before you draft. Where sections are
+pending in the queue, first use means first use in the page **as it will exist after the
+flush**, so check the pending entries too.
 
 1. If the acronym has not yet appeared anywhere on the page, write the expansion with
    the acronym in brackets: `Azure Data Factory (ADF)`, `politically exposed person
@@ -294,3 +315,8 @@ When asked to review or audit a design rather than write a section:
    or an empty Risks or Assumptions table on a design that clearly has candidates for
    one, are findings worth a line even when every section is technically present.
 6. Output as a single table in chat. Write nothing to the page in audit mode.
+
+If sections are pending in the write queue, **say so before the table and list them.** The
+audit reports the page as it stands, so a section sitting in the queue reads as Missing
+when it is actually drafted and waiting. Say explicitly that the findings do not account
+for pending entries.

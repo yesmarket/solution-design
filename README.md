@@ -14,7 +14,7 @@ across 22 command files would guarantee drift.
 solution-design/
 ├── .claude-plugin/plugin.json
 ├── .mcp.json                        bundles the Atlassian and Lucid MCP servers
-├── commands/                        24 thin aliases pointing at the skill
+├── commands/                        25 thin aliases pointing at the skill
 ├── tools/generate_commands.py       regenerate the aliases from one table
 └── skills/solution-design-authoring/
     ├── SKILL.md                     workflow, section index, house style, audit mode
@@ -23,6 +23,7 @@ solution-design/
     │   ├── confluence-macros.md     decision macro, status macro, tick and cross
     │   ├── diagrams.md              obtaining and reading diagrams
     │   ├── glossary-and-acronyms.md the two whole document sweeps
+    │   ├── pending-writes.md        the queue: draft many sections, write once
     │   └── sections/
     │       ├── narrative.md         Background, Overview, Current, Target
     │       ├── considerations.md    Security, Compliance, Cost, Telemetry, Data, Infra
@@ -53,7 +54,24 @@ loads per invocation.
 /glossary-scan                          whole page, walks candidate terms one by one
 /acronym-sweep                          whole page, normalises acronym expansion
 /dd-audit <page url>                    read only completeness review
+/write-pending                          writes every queued section in one write
 ```
+
+**Queue several sections, write once.** Every gate offers *queue it and continue* as well
+as *write it now*, so you can run `/scope-in`, then `/scope-out`, then `/assumption`,
+reviewing each draft as you go, and land all of them with a single `/write-pending`. One
+Confluence write instead of three: faster, and fewer windows for a concurrent session to
+lose work in. Risks and Key Design Decisions still gate one row at a time, so queueing
+buys the write saving without giving up per-row review.
+
+The queue lives in `~/.claude/solution-design/pending/<pageId>/`, one file per pending
+entry, append only so two terminals cannot clobber it. It survives a terminal restart and
+is shared per page, so two sessions queueing different sections of one page flush
+together. On claude.ai, which has no filesystem, the queue is held in the conversation
+instead and the skill says so when you first queue something. Drafting checks that read
+the page also read the queue: acronym first use, dedupe, the In Scope versus Out of Scope
+contradiction check, and `/dd-audit`, which states what is pending rather than reporting a
+queued section as missing.
 
 **Batch versus one at a time.** Scope in and out, Components Impacted, Assumptions,
 Issues, Dependencies, and Constraints take every row the brain dump supports in a

@@ -20,6 +20,10 @@ Walking the candidates takes a while, so the body you read at the start is stale
 time you write. **Re fetch immediately before the single write and splice onto that
 copy**, per "Concurrent sessions" in `references/confluence-mechanics.md`.
 
+Include any sections pending in the write queue in the scan, since a candidate that is
+queued but not yet written is still a candidate. Say how many pending sections you
+covered.
+
 Page reference, or any terms the user wants forced into the list:
 
 $ARGUMENTS
