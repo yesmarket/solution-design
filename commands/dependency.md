@@ -1,10 +1,14 @@
 ---
-description: Append one row to the Dependencies register
+description: Add all Dependencies rows the brain dump supports, in one pass
 ---
 
 Use the `solution-design-authoring` skill.
 
 Section: **Dependencies**
+
+Write mode: **all rows in one pass.** Draft every row the brain dump supports, show the
+complete set as one table, approve once, write once. Do not split the rows across
+invocations.
 
 Follow the skill's workflow: read the section reference file, fetch the current page
 body, draft, then show the proposed content and put the approval gate to the user as

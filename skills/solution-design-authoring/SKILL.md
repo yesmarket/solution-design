@@ -1,6 +1,6 @@
 ---
 name: solution-design-authoring
-description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when reviewing an existing design page for completeness.
+description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
 ---
 
 # Solution Design Authoring
@@ -18,7 +18,11 @@ the page.
    "2 to 4 bullets", not "2 4 bullets" with a dash.
 2. **One section per invocation.** Never opportunistically fill in neighbouring
    sections, even if the brain dump contains material that belongs there. If it does,
-   say so at the end and offer. Do not write.
+   say so at the end and offer. Do not write. For a table section this means one
+   section, not one row: most table sections take every row the brain dump supports in
+   a single pass, see the section index. The only exceptions to the one section rule
+   are the two whole document sweeps, `/glossary-scan` and `/acronym-sweep`, which by
+   definition read the entire page, and only one of which writes across sections.
 3. **Always show the draft and ask whether to proceed before writing.** These are
    shared pages under active review and a bad write is expensive to unpick. Ask with
    the interactive question tool (`AskUserQuestion` in Claude Code) so the user picks
@@ -102,22 +106,33 @@ as sufficient to proceed.
 | Current Solution | Diagram + callouts | Replace callouts, keep diagram | `sections/narrative.md` |
 | Target Solution | Diagram + callouts | Replace callouts, keep diagram | `sections/narrative.md` |
 | Glossary | Table | Merge, dedupe, sort | `sections/tables-scope.md` |
-| Scope - In Scope | Table | Append row | `sections/tables-scope.md` |
-| Scope - Out of Scope | Table | Append row | `sections/tables-scope.md` |
+| Scope - In Scope | Table | Append rows, batch | `sections/tables-scope.md` |
+| Scope - Out of Scope | Table | Append rows, batch | `sections/tables-scope.md` |
 | Applicable Reference Architectures | Table | Merge, dedupe | `sections/tables-scope.md` |
-| Key Design Decisions | Table | Append one row | `sections/tables-decisions.md` |
-| Components Impacted | Table | Append one row | `sections/tables-decisions.md` |
-| Risks | Table | Append one row | `sections/tables-registers.md` |
-| Assumptions | Table | Append one row | `sections/tables-registers.md` |
-| Issues | Table | Append one row | `sections/tables-registers.md` |
-| Dependencies | Table | Append one row | `sections/tables-registers.md` |
-| Constraints | Table | Append one row | `sections/tables-registers.md` |
+| Key Design Decisions | Table | Append **one** row | `sections/tables-decisions.md` |
+| Components Impacted | Table | Append rows, batch | `sections/tables-decisions.md` |
+| Risks | Table | Append **one** row | `sections/tables-registers.md` |
+| Assumptions | Table | Append rows, batch | `sections/tables-registers.md` |
+| Issues | Table | Append rows, batch | `sections/tables-registers.md` |
+| Dependencies | Table | Append rows, batch | `sections/tables-registers.md` |
+| Constraints | Table | Append rows, batch | `sections/tables-registers.md` |
 | Security Considerations | Prose | Replace | `sections/considerations.md` |
 | Regulatory, Compliance, and Privacy Considerations | Prose | Replace | `sections/considerations.md` |
 | Licensing & Cost Considerations | Prose | Replace | `sections/considerations.md` |
 | Telemetry Considerations | Prose | Replace | `sections/considerations.md` |
 | Data and Information Considerations | Prose | Replace | `sections/considerations.md` |
 | Infrastructure, Network, & Integration | Diagram + prose | Replace prose, keep diagram | `sections/considerations.md` |
+
+### Batch tables versus one at a time
+
+**Batch** tables take every item the brain dump supports in a single invocation. Draft
+the full set, show it as one table, approve once, write once. Splitting them across
+invocations wastes a full page read and write per row for no benefit.
+
+**Key Design Decisions and Risks are one row per invocation.** Both carry judgement the
+user needs to weigh individually: a decision's rationale and implications, a risk's
+Possibility/Impact pair. Batching them produces rows nobody actually reviewed. If a
+brain dump clearly contains several, draft the first, write it, then offer the next.
 
 Cross cutting references, read as needed:
 
@@ -127,6 +142,8 @@ Cross cutting references, read as needed:
   Read before writing Key Design Decisions, Components Impacted, or Assumptions.
 - `references/diagrams.md` - how to obtain and read a diagram. Read before Current
   Solution, Target Solution, or Infrastructure.
+- `references/glossary-and-acronyms.md` - the two whole document sweeps. Read before
+  `/glossary-scan` or `/acronym-sweep`.
 
 ## Right-sizing
 
@@ -181,23 +198,53 @@ Context than after ten sections have been drafted to the wrong scale.
 Applies to every section. Section references may tighten these but never relax them.
 
 - **No em dashes.** See rule 1 above.
-- **Write for a peer architect, not an executive.** Assume the reader knows what a VPC
-  and an OIDC flow are. Do not explain fundamentals. The exception is Current Solution
-  and Target Solution, which are read by delivery leads and business stakeholders.
+- **Write for a mixed audience.** These pages are read by architects and engineers, and
+  also by delivery leads, product owners, and risk, compliance and financial crime
+  people. Assume a reader who is capable but not necessarily technical. Use plain
+  language and short sentences. Name components precisely, then say what they do in
+  ordinary words. Never use a phrasing only an engineer can parse when a plainer one
+  carries the same meaning. Depth is still welcome in Infrastructure, Network, &
+  Integration and in the Considerations sections, where a technical reader is a fair
+  assumption. Everything else should be legible to a non engineer on first read.
 - **Prose sections: 2 to 5 short paragraphs.**
 - **Table cells: fragments, not sentences.** No trailing full stops on bullet points
   inside cells. Where a schema says "1 sentence", a full stop is fine.
 - **Name things exactly.** Real service names, repo names, account and environment
   names. `fabricapp-merchant-application-service`, not "the merchant service". If the
   brain dump is vague about an identifier, flag it rather than smoothing it over.
-- **Expand every acronym on first use**, then use the short form. If you introduce a
-  new acronym, note that Glossary may need updating.
+- **Expand every acronym on first use, then use the short form.** See "Acronyms and the
+  Glossary" below, which makes this a page level rule rather than a section level one.
 - **Australian English.** Prioritise, organisation, licence (noun) and license (verb).
 - **No filler.** Delete "it is important to note that", "in order to", "leverage"
   where "use" works, and any sentence that survives deletion without loss.
 - **Present tense for Current Solution, declarative for Target Solution.**
 - **No hedging on decisions already made.** Uncertainty belongs in Risks, Issues, or
   Assumptions.
+
+## Acronyms and the Glossary
+
+First use is **first use in the whole document, not first use in your section.** You
+have already fetched the page body, so check it before you draft.
+
+1. If the acronym has not yet appeared anywhere on the page, write the expansion with
+   the acronym in brackets: `Azure Data Factory (ADF)`, `politically exposed person
+   (PEP)`, `enhanced customer due diligence (ECDD)`.
+2. Everywhere after that, in your section and in every later section, use the short
+   form alone: `ADF`.
+3. If the acronym is already expanded somewhere above your section, use the short form
+   only. Do not expand it a second time.
+4. If your section sits **above** the existing first expansion, move the expansion to
+   your section and say so, because the reader meets your section first.
+
+**Every acronym, product name, or internal term you introduce is a Glossary candidate.**
+That includes multi word terms that are not acronyms at all, for example "enhanced
+customer due diligence" or "Risk Narrative Compliance Lens". Do not write to the
+Glossary from another section's invocation; that breaks one section per invocation.
+Instead, list the candidates at the end of your chat response and offer
+`/glossary-scan`.
+
+`references/glossary-and-acronyms.md` carries the full procedure for both sweeps. Read
+it when running `/glossary-scan` or `/acronym-sweep`.
 
 ## Handling thin input
 

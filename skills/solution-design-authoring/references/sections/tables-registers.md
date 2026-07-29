@@ -1,7 +1,19 @@
 # Register Tables
 
 Covers **Risks**, **Assumptions**, **Issues**, **Dependencies**, and **Constraints**.
-All append one row per invocation.
+
+**Write mode differs across the five:**
+
+| Table | Write mode |
+|---|---|
+| Risks | Append **one** row per invocation |
+| Assumptions, Issues, Dependencies, Constraints | Append **all** rows the brain dump supports, in one pass |
+
+Risks stay one at a time because the Possibility/Impact pair is a judgement the user
+has to weigh per row. The other four are usually enumerated in a single brain dump and
+gain nothing from being split. For those, draft every row, show the complete table,
+approve once, write once. Deduplicate within your own batch as well as against the
+rows already on the page.
 
 ## Shared rules
 

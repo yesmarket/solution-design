@@ -47,16 +47,25 @@ without proper consideration of..." should be rewritten as a neutral fact.
 **Purpose:** the executive readable summary of the answer. This is the section quoted
 in a steering pack. It must stand alone.
 
-**Shape:** 2 to 4 paragraphs, or 1 to 2 paragraphs followed by a short bulleted list of
-the solution's constituent parts.
+**Shape:** a single flat list of dot points. **No paragraphs, no sub headings, no
+nesting.** One idea per bullet, one line each where possible, no trailing full stops.
+Aim for 6 to 12 bullets. This section is skimmed in a steering pack, and a flat list is
+what survives that.
 
-1. The recommendation, in one or two sentences, up front. No build up.
-2. How it works, at the level of named components and the flow between them. A reader
-   should be able to draw a box diagram from this paragraph.
-3. Why this over the alternatives, in one or two sentences, pointing at Key Design
-   Decisions for the detail rather than repeating it.
-4. Delivery shape if the brain dump covers it: phasing, what lands first, what is
-   deferred.
+Order the bullets so the list reads top to bottom as an argument:
+
+1. The recommendation itself, first. No build up.
+2. What it changes, in one bullet.
+3. How it works: the named components and the flow between them, a few bullets. A
+   reader should be able to draw a box diagram from these.
+4. What is **not** changing, where a reader would otherwise assume it is.
+5. Why this over the alternatives, briefly.
+6. Delivery shape if the brain dump covers it: phasing, what lands first, what is
+   deferred. One bullet per phase.
+7. A closing pointer to Key Design Decisions for the detail.
+
+Plain language throughout, per the mixed audience rule in `SKILL.md`. This is the one
+section most likely to be read by someone who will never read another.
 
 **Constraints:**
 
@@ -81,7 +90,9 @@ register.** No ARNs, no port numbers, no class names, no subnet CIDRs. If the br
 dump is full of implementation detail, that detail belongs in Infrastructure, Network,
 & Integration. Note it and offer; do not write it here.
 
-This is the one place where the "write for a peer architect" house rule is relaxed.
+The house rule in `SKILL.md` already assumes a mixed audience. These two sections sit
+at the plainest end of that range: if a delivery lead cannot follow a callout, rewrite
+it.
 
 ### Write mode
 

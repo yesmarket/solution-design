@@ -1,10 +1,22 @@
 # Decision Tables
 
-Covers **Key Design Decisions** and **Components Impacted**. Both append exactly one
-row per invocation. Both use macros: read `../confluence-macros.md` before writing.
+Covers **Key Design Decisions** and **Components Impacted**. Both use macros: read
+`../confluence-macros.md` before writing.
 
-Never batch multiple rows from one brain dump unless the user explicitly asks. If the
-dump clearly contains two decisions, draft the first, write it, then offer the second.
+**Write mode differs between the two:**
+
+| Table | Write mode |
+|---|---|
+| Key Design Decisions | Append **one** row per invocation |
+| Components Impacted | Append **all** rows the brain dump supports, in one pass |
+
+Key Design Decisions stays one at a time. Each row carries a rationale and a set of
+implications the user has to weigh on its own, and batching produces rows nobody
+actually reviewed. If a dump clearly contains two decisions, draft the first, write it,
+then offer the second.
+
+Components Impacted is an inventory. Draft a row for every component the dump touches,
+show the complete table, approve once, write once.
 
 ## Contents
 
@@ -170,7 +182,7 @@ Brain dump:
 > service isn't changing but it shares the same cognito pool so worth regression
 > testing. dave owns the adapter, priya is the SME on the portal.
 
-Four separate invocations, one row each:
+One invocation, four rows, shown together and approved once:
 
 | Component | Status | Impacts | Owner | SME |
 |---|---|---|---|---|
@@ -187,5 +199,6 @@ Status describes the component, not the change.
 
 ### Before appending
 
-Check whether the component already has a row. If it does and the status differs, flag
-the conflict rather than adding a second row for the same component.
+Check whether each component already has a row. If one does and the status differs,
+flag the conflict rather than adding a second row for the same component. Deduplicate
+within your own batch too: the same component named twice in a brain dump is one row.

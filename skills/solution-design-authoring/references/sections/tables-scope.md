@@ -79,9 +79,8 @@ copies the table.
 
 ## Scope - In Scope
 
-**Write mode:** append one row. On a first invocation against an empty table, several
-rows in one pass is acceptable if the brain dump clearly enumerates them; confirm the
-full set with the user before writing.
+**Write mode:** append all rows the brain dump supports, in one pass. Draft the
+complete set, show it as one table, approve once, write once.
 
 ### Schema
 
@@ -108,7 +107,7 @@ full set with the user before writing.
 
 ## Scope - Out of Scope
 
-**Write mode:** append one row.
+**Write mode:** append all rows the brain dump supports, in one pass. Same as In Scope.
 
 ### Schema
 
@@ -129,7 +128,8 @@ full set with the user before writing.
   exclusions, ask. Most scope disputes come from things nobody wrote down as excluded,
   and adjacent but excluded work is worth stating even when it feels obvious.
 - If the brain dump for one scope table implies items for the other, note them in chat
-  and offer. One section per invocation.
+  and offer. One section per invocation still holds: batching means all the rows for
+  **this** table, not both tables at once.
 
 ---
 

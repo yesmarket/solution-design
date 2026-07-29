@@ -119,6 +119,10 @@ immediately before `</tbody>`. Do not rebuild the table. Do not reorder rows. Do
 touch the header row. If the section has no table, build one from the schema and say so
 in your confirmation.
 
+**Append rows, batch** - the same, with several `<tr>` appended in order immediately
+before `</tbody>`. Still one write. Which sections batch and which do not is in the
+section index in `SKILL.md`; Key Design Decisions and Risks are the two that do not.
+
 **Merge and dedupe** - read existing rows, work out which candidates are genuinely new,
 append only those. Report the count skipped. Match loosely when deduping. For Glossary
 only, also sort the whole table alphabetically after merging, preserving existing

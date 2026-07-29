@@ -14,7 +14,7 @@ across 22 command files would guarantee drift.
 solution-design/
 ├── .claude-plugin/plugin.json
 ├── .mcp.json                        bundles the Atlassian and Lucid MCP servers
-├── commands/                        22 thin aliases pointing at the skill
+├── commands/                        24 thin aliases pointing at the skill
 ├── tools/generate_commands.py       regenerate the aliases from one table
 └── skills/solution-design-authoring/
     ├── SKILL.md                     workflow, section index, house style, audit mode
@@ -22,6 +22,7 @@ solution-design/
     │   ├── confluence-mechanics.md  splice rules, heading and column matching
     │   ├── confluence-macros.md     decision macro, status macro, tick and cross
     │   ├── diagrams.md              obtaining and reading diagrams
+    │   ├── glossary-and-acronyms.md the two whole document sweeps
     │   └── sections/
     │       ├── narrative.md         Background, Overview, Current, Target
     │       ├── considerations.md    Security, Compliance, Cost, Telemetry, Data, Infra
@@ -33,9 +34,10 @@ solution-design/
         └── sources.md                Confluence page links for the 3 house exemplars
 ```
 
-The 21 sections group into four behaviours: prose, diagram plus callouts, append one
-row, and merge with dedupe. Sections are grouped into reference files by behaviour
-rather than one file per section, so only one grouped file loads per invocation.
+The 21 sections group into five behaviours: prose, diagram plus callouts, append one
+row, append all rows in one pass, and merge with dedupe. Sections are grouped into
+reference files by behaviour rather than one file per section, so only one grouped file
+loads per invocation.
 
 ## Usage
 
@@ -43,11 +45,21 @@ rather than one file per section, so only one grouped file loads per invocation.
 /background-context <brain dump>
 /key-design-decision <brain dump>       appends one row
 /risk <brain dump>                      appends one row, DREAD or Possibility/Impact
+/assumption <brain dump>                appends every row the dump supports, one write
+/component-impacted <brain dump>        appends every row the dump supports, one write
 /glossary                               no input, scans page and session
 /reference-architectures                no input, searches Confluence
 /target-solution <brain dump>           reads the diagram, writes callouts
+/glossary-scan                          whole page, walks candidate terms one by one
+/acronym-sweep                          whole page, normalises acronym expansion
 /dd-audit <page url>                    read only completeness review
 ```
+
+**Batch versus one at a time.** Scope in and out, Components Impacted, Assumptions,
+Issues, Dependencies, and Constraints take every row the brain dump supports in a
+single pass, because each Confluence write costs a full page read and rewrite. Key
+Design Decisions and Risks stay one row per invocation: both carry judgement the author
+needs to weigh per row, and batching them produces rows nobody reviewed.
 
 In claude.ai, where plugin slash commands are not available, the skill triggers from
 plain language: *"fill in Key Design Decisions from this: ..."*. The skill is written to
@@ -131,7 +143,11 @@ grep -rP '\x{2014}|\x{2013}' .
 
 To add a section: append a tuple to `SECTIONS` in `tools/generate_commands.py`, rerun
 it, add a row to the section index in `SKILL.md`, and add the schema to whichever
-grouped reference file matches its behaviour. Three edits, no duplication.
+grouped reference file matches its behaviour. Three edits, no duplication. If the new
+section is a table, also add its slug to `SINGLE_ROW` or `BATCH_ROWS` in the generator,
+which decides the write mode note baked into the command.
+
+To add a command that is not a section, add it to `STANDALONE` in the generator.
 
 Plugin layout and frontmatter conventions move between releases. Worth checking
 https://docs.claude.com/en/docs/claude-code/overview before publishing to a marketplace.
