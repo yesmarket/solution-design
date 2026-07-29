@@ -26,6 +26,11 @@ BATCH_ROWS = {
     "assumption", "issue", "dependency", "constraint",
 }
 
+# Batch sections whose input is habitually a bare newline separated list with the
+# consequence column left for us to derive. See the input convention in
+# references/sections/tables-registers.md.
+BARE_LIST = {"assumption", "issue", "dependency", "constraint"}
+
 # (command slug, canonical section name, short description for the command palette)
 SECTIONS = [
     ("background-context", "Background & Context",
@@ -102,6 +107,11 @@ SINGLE_NOTE = """\
 Write mode: **one row only.** If the brain dump clearly contains more than one, draft
 the first, write it, then offer the next."""
 
+BARE_LIST_NOTE = """\
+Input: expect a bare newline separated list, bullet markers optional. One non-empty line
+is one row. **Derive the consequence column yourself**, do not ask the user for it, and
+use the user's own wording where a line already states its consequence."""
+
 AUDIT = """\
 ---
 description: Audit a detailed design page for missing, empty or thin sections
@@ -174,6 +184,8 @@ def mode_note(slug: str) -> str:
     if slug in SINGLE_ROW:
         return SINGLE_NOTE
     if slug in BATCH_ROWS:
+        if slug in BARE_LIST:
+            return f"{BATCH_NOTE}\n\n{BARE_LIST_NOTE}"
         return BATCH_NOTE
     return ""
 

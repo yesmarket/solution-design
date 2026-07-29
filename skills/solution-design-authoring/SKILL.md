@@ -134,6 +134,16 @@ user needs to weigh individually: a decision's rationale and implications, a ris
 Possibility/Impact pair. Batching them produces rows nobody actually reviewed. If a
 brain dump clearly contains several, draft the first, write it, then offer the next.
 
+### Bare lists for Assumptions, Issues, Dependencies, and Constraints
+
+For these four the brain dump is normally a plain list: one item per line, bullet markers
+present or absent, and no implications written out. Read it literally, one non-empty line
+to one row, and **derive the Implication or Impact column yourself** rather than asking
+the user for it. Where a line already carries its own consequence, use the user's wording
+instead of your own. Deriving means inferring from the item and what is already on the
+page, not inventing; thin lines get the bullets you can defend plus a gap noted in chat.
+Full rules and a worked example in `sections/tables-registers.md`.
+
 Cross cutting references, read as needed:
 
 - `references/confluence-mechanics.md` - splice rules, heading matching, storage

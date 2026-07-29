@@ -10,6 +10,10 @@ Write mode: **all rows in one pass.** Draft every row the brain dump supports, s
 complete set as one table, approve once, write once. Do not split the rows across
 invocations.
 
+Input: expect a bare newline separated list, bullet markers optional. One non-empty line
+is one row. **Derive the consequence column yourself**, do not ask the user for it, and
+use the user's own wording where a line already states its consequence.
+
 Follow the skill's workflow: read the section reference file, fetch the current page
 body, draft, then show the proposed content and put the approval gate to the user as
 selectable options (`AskUserQuestion`), not a free text question, before writing

@@ -61,6 +61,12 @@ single pass, because each Confluence write costs a full page read and rewrite. K
 Design Decisions and Risks stay one row per invocation: both carry judgement the author
 needs to weigh per row, and batching them produces rows nobody reviewed.
 
+**Bare lists.** For Assumptions, Issues, Dependencies, and Constraints the expected
+input is a plain newline separated list, bullet markers optional. One line becomes one
+row and the Implication or Impact column is derived rather than asked for, so a dump of
+ten one line items comes back as ten fully populated rows for review. Where a line
+already states its own consequence, the author's wording is kept.
+
 In claude.ai, where plugin slash commands are not available, the skill triggers from
 plain language: *"fill in Key Design Decisions from this: ..."*. The skill is written to
 work standalone and assumes no filesystem, no code execution, and no subagents. The

@@ -15,6 +15,45 @@ gain nothing from being split. For those, draft every row, show the complete tab
 approve once, write once. Deduplicate within your own batch as well as against the
 rows already on the page.
 
+## Input convention: one line, one row
+
+For Assumptions, Issues, Dependencies, and Constraints the user's brain dump is usually
+a bare list. One item per line, with or without a leading `-` or `*`, no implications
+written out. Expect that as the normal case and read it literally:
+
+- **Each non-empty line is one row.** Do not merge two lines into a single row because
+  they look related, and do not split one line into two rows unless it plainly carries
+  two separate items, in which case split it and say you did.
+- **Leading markers are noise.** `-`, `*`, `•`, numbering, and inconsistent indentation
+  all mean the same thing. Never ask the user to reformat or re-punctuate the list.
+- **A sub-bullet indented under a line belongs to that line**, as content for its second
+  column. It is not a row of its own.
+- **The second column is yours to author.** The user supplies the Assumption, Issue,
+  Dependency, or Constraint text; you derive the Implication or Impact bullets. This is
+  the default, not a fallback, so do not stop and ask what the implications are.
+- **Unless the user wrote them.** If a line already carries its own consequence, after a
+  colon, an `=>`, a "which means", a "so", or in an indented sub-bullet, that is the
+  user's Implication or Impact. Use their words. Tighten the phrasing to house style but
+  do not replace their reasoning with your own or quietly add to it.
+
+**Deriving is inference, not invention.** An implication has to follow from the item
+plus what is already on the page and in the session. Where a line is too thin to support
+a confident consequence, write the bullets you can defend and list the rest as a gap in
+chat, or write `TBC` in the cell. Do not manufacture a plausible sounding impact to fill
+the column; a derived implication the user has not thought about is exactly the thing
+that gets asserted in review as though they had.
+
+Because the second column is inferred rather than supplied, it is the part of the draft
+most likely to be wrong. The draft you show at the approval gate is the user's only
+chance to catch it, so show every derived cell in full rather than summarising the table.
+
+For Assumptions specifically, a bare line names no validator, so `Validated` defaults to
+a cross and `By` to `TBC`. Do not read the absence of a validator as an invitation to
+tick.
+
+Classification still applies. A line that lands in the wrong table is worth flagging even
+when the other nine are fine, per the test below.
+
 ## Shared rules
 
 **Column mapping.** Read the existing header row and map onto the columns that are
@@ -48,6 +87,7 @@ to write it to the right one instead.
 
 ## Contents
 
+- [Input convention: one line, one row](#input-convention-one-line-one-row)
 - [Risks](#risks)
 - [Assumptions](#assumptions)
 - [Issues, Dependencies, Constraints](#issues-dependencies-constraints)
@@ -196,9 +236,10 @@ headline, stop, that is the placeholder rule this file no longer uses.
 out to be wrong, it is a fact and belongs in a narrative section.
 
 **Implication** is what follows if the assumption holds, and more usefully, what breaks
-if it does not. At least one bullet should address the failure case. An assumption whose
-failure would break the design should also be raised as a candidate risk; flag it, do
-not write to the Risks table.
+if it does not. At least one bullet should address the failure case. Derive it yourself
+from the assumption unless the user wrote it, per the input convention above. An
+assumption whose failure would break the design should also be raised as a candidate
+risk; flag it, do not write to the Risks table.
 
 **Validated** is a tick only when the brain dump names who validated it and how. A tick
 is a claim that someone checked. Default to a cross. Never tick an assumption because it
@@ -266,3 +307,32 @@ Constraints are not requirements. "The solution must be highly available" is a
 requirement. "Only two availability zones are provisioned in the target account" is a
 constraint. A constraint that is actually negotiable should say so in the Impact cell:
 that is often the most useful thing in the section.
+
+### Worked example: bare list in, full table out
+
+Brain dump for Constraints, exactly as pasted, no bullets, no implications:
+
+```
+all inter cloud traffic has to go over the existing site to site VPN
+only 2 AZs in the target account
+ANZ SFTP only supports SSH keys, no password auth
+change freeze from 15 Dec to 5 Jan so cutover has to be before that
+```
+
+Four lines, four rows. The Impact column is derived in every row because the user wrote
+none of it:
+
+| Constraint | Impact |
+|---|---|
+| All inter cloud traffic must traverse the existing Site to Site Virtual Private Network (VPN) to the AWS Transit Gateway. | <ul><li>No direct public egress path available for the integration</li><li>Throughput bounded by the existing tunnel capacity</li><li>Network team change required for any new route</li></ul> |
+| Only two Availability Zones are provisioned in the target account. | <ul><li>Quorum based components cannot be spread across three zones</li><li>Loss of one zone removes half of the deployed capacity</li></ul> |
+| The ANZ Secure File Transfer Protocol (SFTP) endpoint supports SSH key authentication only. | <ul><li>No password or vault backed credential rotation path</li><li>Key lifecycle and custody process required before go live</li></ul> |
+| A change freeze applies from 15 December to 5 January. | <ul><li>Cutover must complete before 15 December</li><li>No remediation window inside the freeze if cutover defects surface</li></ul> |
+
+Note what the derivation did and did not do. Consequences follow from each line and from
+what is already on the page: the Transit Gateway and the AWS account came from the
+Infrastructure section, not from thin air. Nothing invented an owner, a date the user did
+not give, or a mitigation. The third row is a constraint rather than an assumption
+because the user stated it as fact about the endpoint; had they written "we assume the
+endpoint supports SSH keys" it belongs in Assumptions, and the right move is to say so
+rather than write it here.
