@@ -6,6 +6,7 @@ write.
 ## Contents
 
 - [The core constraint](#the-core-constraint)
+- [Concurrent sessions](#concurrent-sessions)
 - [Locating a section](#locating-a-section)
 - [Heading aliases](#heading-aliases)
 - [Mapping table columns](#mapping-table-columns)
@@ -24,12 +25,102 @@ whole body back. Consequences:
 - You must fetch the current body first, every time. No exceptions.
 - Anything you fail to carry across is deleted, silently.
 - The version number must be the current version incremented by one. If someone else
-  saved between your read and your write, the write either fails or clobbers them. Keep
-  the gap between read and write short: fetch immediately before writing, not at the
-  start of a long drafting conversation.
+  saved between your read and your write, the write either fails or clobbers them.
 
-If drafting took a while, **re fetch the body before writing** and confirm the version
-has not moved.
+Because the whole body is the unit of write, **every write is a potential clobber of the
+entire page**, not just of the section you are editing. The next section covers the
+protocol that prevents it. It is not optional and it is not a best effort.
+
+## Concurrent sessions
+
+Assume you are not the only writer. Another terminal, another author in the Confluence
+editor, or a Rovo agent may save between your read and your write. This has already
+happened in practice and cost sections that had to be restored from page history.
+
+### The two fetch rule
+
+**Fetch the body twice. Draft from the first, write onto the second.**
+
+1. **Draft fetch**, at the start of the invocation. Use it for context: existing content,
+   table headers, acronym first use, the target section's current markup. **Record the
+   version number and keep the target section's exact markup.**
+2. **State the version in the draft you show the user**, for example "drafted against
+   version 47". It costs one line and makes a clobber diagnosable afterwards.
+3. **Approval gate.**
+4. **Write fetch**, immediately after approval. This is the authoritative body. Nothing
+   goes between this fetch and the write: no further questions, no further reads, no
+   re drafting. If anything does intervene, fetch again.
+5. Splice onto the **write fetch** body and send `version = write fetch version + 1`.
+
+**Never send a body captured before the approval gate.** Your draft is content, a set of
+rows or a section body, not a snapshot of the page. Splicing the approved content onto a
+stale body is the exact mechanism by which another session's work disappears, and it
+looks like a successful write from your side.
+
+### Comparing the two fetches
+
+| Draft version vs write version | Target section changed? | What to do |
+|---|---|---|
+| Same | n/a | Splice and write normally |
+| Moved | No | Another session wrote a different section. Splice onto the new body, write, and tell the user you layered onto version N and what moved |
+| Moved | **Yes** | **Stop. Do not write.** Another session wrote *your* section |
+
+That last row is the case that loses work. Show the user what the section says now versus
+what you drafted from, and ask whether to merge the two, replace what is there, or abandon
+your draft. Never resolve it yourself: an overwrite here silently discards content someone
+just approved in another terminal.
+
+### Optimistic locking, and never blind retry
+
+Send the version number explicitly, always. It is the only lock available, and its whole
+purpose is to make a concurrent save fail loudly instead of quietly winning.
+
+- **Never omit the version** and never use a force, overwrite, or minor edit option that
+  bypasses the check.
+- **A rejected write is information, not an obstacle.** Re fetch, re compare per the table
+  above, re decide. Bumping the number and retrying is not a fix, it is the clobber.
+- Do not retry more than once without telling the user what conflicted.
+
+### Prove the diff before you write
+
+Before sending, compare your outgoing body against the write fetch body. **The only
+difference must be inside the target section.** If anything outside it differs, your
+splice boundary is wrong. Stop and re splice rather than writing and checking after.
+
+Cheap checks that catch a clobber, all worth running:
+
+- **Heading census.** Same set of headings, same order, before and after.
+- **Length sanity.** An append should make the body longer. A prose replace should be
+  within a sane range of the old one. A body that shrank when you appended a row means
+  you dropped something.
+- **Macro and image census.** Same count of `<ac:structured-macro>`, `<ac:image>`, and
+  `<ac:inline-comment-marker>` before and after.
+
+### Working with several terminals
+
+The skill cannot serialise sessions it cannot see, so some of this is on the author:
+
+- **Safest is one session per page at a time.** Parallel terminals on one page are what
+  produced the clobbering.
+- **Never two sessions on the same section**, even briefly. Two sessions on different
+  sections of the same page is survivable because of the write fetch, but only if both
+  follow it.
+- **Approve promptly.** The exposure window is between the write fetch and the write,
+  which the protocol keeps to a single call. A draft that sat unapproved for twenty
+  minutes is fine, that is what the write fetch is for; a slow approval does not make the
+  write unsafe, but a long gap does raise the chance the target section moved underneath
+  it.
+- **Parallel work is safer across pages than within one page.** If you are running four
+  terminals, four pages is fine, four sections of one page is not.
+- If the user is clearly running several sessions on one page, say so once and suggest
+  splitting by page or running the sections in sequence.
+
+### If a clobber has already happened
+
+Say so immediately and plainly. Do not attempt to reconstruct the lost content from
+memory: Confluence page history has it exactly. Give the user the version number to
+restore, name the section that was lost, and let them revert. Reconstructing from your
+own context produces something that looks right and is not.
 
 ## Locating a section
 
@@ -201,20 +292,26 @@ above the new text, below it, or remove?"
 
 ## Write and verify
 
-1. Re fetch the body. Confirm the version number matches what you read earlier.
-2. Write the full modified body with `version = current + 1`.
-3. Provide a version comment describing the change, for example
-   `Claude: appended Key Design Decision (token minting approach)`. This makes page
-   history readable and lets a reviewer diff exactly what changed.
-4. Re fetch and confirm your content is present and the page still has the same set of
-   headings it had before. A heading count that dropped means you ate a section. Say so
+1. **Write fetch.** Immediately after approval, with nothing between it and step 3.
+   Compare its version against the version you drafted from and act per the table in
+   "Concurrent sessions".
+2. Splice the approved content onto **this** body. Diff the result against it and confirm
+   the only change is inside the target section.
+3. Write the full modified body with `version = write fetch version + 1`.
+4. Provide a version comment naming the section, for example
+   `Claude: appended Key Design Decision (token minting approach)`. **Always name the
+   section**: when several sessions are writing one page, this is what makes history
+   readable and tells the user which terminal did what.
+5. Re fetch and confirm your content is present, the heading set is unchanged, and the
+   macro and image counts match. Any shortfall means you ate something. Say so
    immediately rather than reporting success.
 
 ## Failure modes
 
 | Symptom | Cause | Response |
 |---|---|---|
-| Version conflict on write | Someone saved concurrently | Re fetch, re splice onto the new body, warn the user their edit is layering on someone else's |
+| Version conflict on write | Someone saved concurrently | Re fetch and compare per "Concurrent sessions". Re splice onto the new body if your section is untouched; stop and ask if it is not. Never bump the version and retry |
+| A section written earlier in the session has reverted or vanished | Another session wrote a stale body over it | Stop writing to this page. Give the user the history version to restore and say which section was lost. Do not reconstruct it |
 | Content renders as escaped text | Body sent with the wrong representation flag | Check the representation parameter matches the format you produced |
 | Table collapses on next editor save | Missing `<p>` wrappers in cells | Rewrite the affected rows properly |
 | Status lozenge renders grey | Used `color` instead of `colour` | See `confluence-macros.md` |

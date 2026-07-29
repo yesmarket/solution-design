@@ -16,6 +16,10 @@ Show the full candidate list first so the size of the job is visible, then walk 
 candidates **one at a time**, asking with `AskUserQuestion` whether to add each one.
 Merge, sort, and write once at the end.
 
+Walking the candidates takes a while, so the body you read at the start is stale by the
+time you write. **Re fetch immediately before the single write and splice onto that
+copy**, per "Concurrent sessions" in `references/confluence-mechanics.md`.
+
 Page reference, or any terms the user wants forced into the list:
 
 $ARGUMENTS

@@ -93,6 +93,10 @@ body, draft, then show the proposed content and put the approval gate to the use
 selectable options (`AskUserQuestion`), not a free text question, before writing
 anything to Confluence.
 
+On approval, **fetch the body again and splice onto that fresh copy**, never onto the
+body you drafted from, and send the version explicitly. Another session may have saved
+in the meantime and a stale body overwrites its work silently.
+
 Context supplied by the user (may be empty for derived sections):
 
 $ARGUMENTS
@@ -145,6 +149,10 @@ Show the full candidate list first so the size of the job is visible, then walk 
 candidates **one at a time**, asking with `AskUserQuestion` whether to add each one.
 Merge, sort, and write once at the end.
 
+Walking the candidates takes a while, so the body you read at the start is stale by the
+time you write. **Re fetch immediately before the single write and splice onto that
+copy**, per "Concurrent sessions" in `references/confluence-mechanics.md`.
+
 Page reference, or any terms the user wants forced into the list:
 
 $ARGUMENTS
@@ -167,6 +175,13 @@ first uses that were missed, and collapse later uses that are still spelled out.
 Change wording only. Do not add facts, reorder content, or touch table structure,
 macros, or embeds. Present the changes as a before and after list grouped by acronym,
 get approval, then apply them all in a single write.
+
+This sweep rewrites text across every section, so it is the most destructive operation in
+the skill if the body is stale. **Re fetch immediately after approval and re apply the
+approved wording changes to that copy**, per "Concurrent sessions" in
+`references/confluence-mechanics.md`. If the re fetch shows the page has moved, re run the
+sweep against the new body rather than writing the old one. Do not run this while another
+session is writing to the same page.
 
 Page reference, or any acronyms to focus on:
 

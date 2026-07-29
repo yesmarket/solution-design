@@ -29,8 +29,41 @@ and a new signing key. Existing Cognito controls are unchanged.
 
 In Confluence storage format this is a `<ul>` whose `<li>` holds the bold category text
 followed by a nested `<ul>` of detail bullets, not a `<p>` heading followed by a
-sibling list. Applies to every section below unless a section's own example says
-otherwise.
+sibling list.
+
+**Two sections are flat, one level only: Licensing & Cost, and Regulatory, Compliance,
+and Privacy.** No nested dot points at all. See "Flat sections" below. Everything else
+uses the nested shape above.
+
+## Flat sections
+
+**Licensing & Cost Considerations** and **Regulatory, Compliance, and Privacy
+Considerations** are written as a single level list. One bullet per point, no nesting,
+no sub-bullets, no exceptions.
+
+Where a bullet needs a label, put it inline as bold lead in text on the bullet itself:
+
+```
+Existing entitlement covers the new integration; no new licence purchase is required.
+
+- **Licensing model** consumption based, billed on resource units
+- **Existing entitlement** current agreement covers the additional integration
+- **Run cost** scales on daily file volume, currently around 4,000 records per day
+- **Cost attribution** billed to the Cards cost centre, tagged `svc=instinct`
+- **Open item** unit rate above 10,000 records per day not yet confirmed with the vendor
+```
+
+The groupings listed under each of those two sections below are a **checklist of what to
+cover, not a structure to reproduce on the page.** Use them to decide what belongs, then
+write the flat list. A grouping with nothing to say gets no bullet, not an empty one.
+
+Keep it short. If one of these sections needs more than roughly eight bullets, or a
+bullet needs more than two lines, the extra detail belongs in the owning artefact and
+should be linked rather than restated.
+
+In storage format this is a single `<ul>` of `<li>` elements with no nested `<ul>`
+anywhere inside it. If you find yourself opening a second list level in either of these
+two sections, stop and flatten it.
 
 ## Shared constraints
 
@@ -130,20 +163,25 @@ shape instead: each category as its own dot point, with its details nested under
 
 ## Regulatory, Compliance, and Privacy Considerations
 
-Groupings:
+**Flat list, one level, no nested dot points.** See "Flat sections" above.
 
-- **Applicable Obligations** - name the specific regime and, where supported, the clause
+Checklist of what to cover, written as a flat list:
+
+- **Applicable obligations** name the specific regime and, where supported, the clause
   or control. Regulated lender obligations, AML/CTF, PCI DSS, APRA CPS 234 and CPS 230,
   Privacy Act and the APPs, GDPR where relevant.
-- **Personal Information** - what PI is involved, collected, or newly disclosed, how it
+- **Personal information** what PI is involved, collected, or newly disclosed, how it
   flows, retention
-- **Data Residency & Cross Border** - where data is stored and processed, any offshore
+- **Data residency and cross border** where data is stored and processed, any offshore
   disclosure
-- **Consent & Notification** - where consent is relied on and whether it exists
-- **Records & Audit** - what must be retained, for how long, and where
-- **Assessments Required** - PIA or DPIA, security assessment, vendor due diligence,
+- **Consent and notification** where consent is relied on and whether it exists
+- **Records and audit** what must be retained, for how long, and where
+- **Assessments required** PIA or DPIA, security assessment, vendor due diligence,
   change advisory
-- **Open Items**
+- **Open items** obligations named but not yet confirmed by the accountable function
+
+One bullet per obligation is usually enough. Where a regime needs more than a line,
+link the owning artefact instead of summarising it here.
 
 Do not interpret law. State the obligation as understood and route the judgement to the
 accountable function: Privacy, Legal, Risk, or Compliance, naming who needs to confirm.
@@ -154,16 +192,23 @@ rather than stating it flatly.
 
 ## Licensing & Cost Considerations
 
-Groupings:
+**Flat list, one level, no nested dot points.** See "Flat sections" above.
 
-- **Licensing Impact** - products involved, licence model (per seat, per node,
-  consumption, resource units), whether existing entitlement covers this
-- **Run Cost** - new or changed recurring cost, with the driver and the units it scales
-  on
-- **Build Cost** - one off costs: professional services, migration, uplift
-- **Cost Attribution** - cost centre, tagging, which entity is billed
-- **Optimisation Levers** - reserved or committed pricing, tiering, retention reduction
-- **Assumptions & Open Items**
+**Run cost and licensing only. Build cost is out of scope for this section.** One off
+delivery costs, professional services, implementation effort, migration effort, internal
+day rates, and vendor onboarding fees do not belong here. They live in the business case
+and the project cost estimate, which are owned elsewhere and are current in a way a
+design page never is. If the brain dump contains build costs, leave them out and say so
+in chat so the user can put them where they belong.
+
+Checklist of what to cover, written as a flat list:
+
+- **Licensing impact** products involved, licence model (per seat, per node, consumption,
+  resource units), whether existing entitlement covers this
+- **Run cost** new or changed recurring cost, with the driver and the units it scales on
+- **Cost attribution** cost centre, tagging, which entity is billed
+- **Optimisation levers** reserved or committed pricing, tiering, retention reduction
+- **Assumptions and open items** what still needs pricing
 
 **Show the shape of the maths and show the assumptions.** A cost figure without the
 volume assumption behind it is a number someone will quote in a business case and be

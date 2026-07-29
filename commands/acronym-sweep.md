@@ -15,6 +15,13 @@ Change wording only. Do not add facts, reorder content, or touch table structure
 macros, or embeds. Present the changes as a before and after list grouped by acronym,
 get approval, then apply them all in a single write.
 
+This sweep rewrites text across every section, so it is the most destructive operation in
+the skill if the body is stale. **Re fetch immediately after approval and re apply the
+approved wording changes to that copy**, per "Concurrent sessions" in
+`references/confluence-mechanics.md`. If the re fetch shows the page has moved, re run the
+sweep against the new body rather than writing the old one. Do not run this while another
+session is writing to the same page.
+
 Page reference, or any acronyms to focus on:
 
 $ARGUMENTS

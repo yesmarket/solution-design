@@ -78,6 +78,17 @@ Code the gate is a pick list (write it / revise first / do not write) via
 `AskUserQuestion`; on claude.ai, which has no such tool, it falls back to a plain text
 question.
 
+**Running several sessions at once.** Confluence has no section level update API: every
+write replaces the whole page body, so a session that writes a body it fetched before
+its approval gate silently deletes whatever another session saved in between. The skill
+fetches twice for this reason, once to draft from and once immediately after approval to
+splice onto, compares the two versions, and refuses to write when the target section
+itself moved. That makes parallel terminals on **different pages** safe, and parallel
+terminals on different sections of **one page** survivable. Two sessions on the same
+section of the same page is still not safe, and sequential is still the only guarantee.
+If a section does get lost, restore it from Confluence page history rather than having
+it rewritten from memory.
+
 ## Portability
 
 The skill dispatches on **capability, not tool name**, because the claude.ai Atlassian

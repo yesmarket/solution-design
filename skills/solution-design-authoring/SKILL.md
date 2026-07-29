@@ -30,6 +30,12 @@ the page.
    silently wait for the user to volunteer approval.
 4. **Never invent technical facts.** If the brain dump is thin, write what is
    supported and list the specific gaps. A short honest section beats a padded one.
+5. **Never write a page body you fetched before the approval gate.** Confluence replaces
+   the whole body on every write, so a stale body silently deletes whatever another
+   session saved in the meantime. Fetch again immediately after approval, splice onto
+   that, and send the version number explicitly. Full protocol in
+   `references/confluence-mechanics.md`, "Concurrent sessions". This is the rule that
+   stops parallel terminals from clobbering each other's sections.
 
 ## Environment probe
 
@@ -60,18 +66,24 @@ must work from tool calls and chat output alone.
    are writing to. Otherwise ask once.
 2. **Read the section reference file** for the requested section. Do this before
    drafting, not after.
-3. **Fetch the current page body.** Always. You need the existing content for context,
-   the version number, the surrounding markup, and for table sections the actual
-   column headers.
+3. **Draft fetch: fetch the current page body.** Always. You need the existing content
+   for context, the surrounding markup, and for table sections the actual column headers.
+   **Record the version number and the target section's current markup**; you will
+   compare against both before writing.
 4. **For table sections, map to the columns that exist on the page**, not the columns
    in the reference file. See `references/confluence-mechanics.md`.
 5. **Draft the content.**
 6. **Show the user the proposed content and ask whether to proceed with the write.**
    Render as markdown in chat, with a one line note on what will be replaced versus
-   appended, then put the approval gate to the user per "Asking the user" below. Do
-   not just show the draft and wait; ask.
-7. **On approval, splice and write.**
-8. **Confirm** with the page URL and a one line summary of what changed.
+   appended and which version you drafted against, then put the approval gate to the user
+   per "Asking the user" below. Do not just show the draft and wait; ask.
+7. **On approval, write fetch: fetch the body again**, with nothing between that fetch and
+   the write. Compare its version and its copy of your target section against what you
+   recorded in step 3, splice the approved content onto **this** body, and write with the
+   version set explicitly. See "Concurrent sessions" in
+   `references/confluence-mechanics.md` for what to do when the version has moved.
+8. **Confirm** with the page URL, the version you wrote, and a one line summary of what
+   changed. Verify the heading set and the macro and image counts survived.
 
 ## Asking the user
 
