@@ -5,10 +5,12 @@ a time. Runs in both Claude Code and claude.ai.
 
 ## Design
 
-All substance lives in **one skill**. The commands are three line aliases that name a
-section and hand off. This is deliberate: the hard part is Confluence's
-read modify write model and the house formatting conventions, and duplicating that
-across 22 command files would guarantee drift.
+All substance lives in **one skill**. The commands name a section, state its write mode,
+and hand off. They carry no schemas, no content rules, and no house style: the hard part is
+Confluence's read modify write model and the formatting conventions, and duplicating that
+across 25 command files would guarantee drift. Commands have grown past the original three
+lines as write-protocol reminders were added, but the rule holds, if a change would add
+substance to a command file it belongs in a reference file instead.
 
 ```
 solution-design/
@@ -24,6 +26,7 @@ solution-design/
     │   ├── diagrams.md              obtaining and reading diagrams
     │   ├── glossary-and-acronyms.md the two whole document sweeps
     │   ├── pending-writes.md        the queue: draft many sections, write once
+    │   ├── refine.md                -r, the replace gate, what refine may not change
     │   └── sections/
     │       ├── narrative.md         Background, Overview, Current, Target
     │       ├── considerations.md    Security, Compliance, Cost, Telemetry, Data, Infra
@@ -41,6 +44,9 @@ reference files by behaviour rather than one file per section, so only one group
 loads per invocation.
 
 ## Usage
+
+A representative sample. There is one command per section, 21 of them, plus 4 page level
+commands; run `/help` or see `commands/` for the full list.
 
 ```
 /background-context <brain dump>
@@ -122,11 +128,13 @@ so worth putting in that device's settings rather than a shared one.
 The `rm` rule only clears entries after a successful flush and is scoped to that one
 directory. Skip it if you would rather approve each cleanup: a flush that writes
 successfully but cannot clear its entries reports that plainly, and the conflict check stops
-those entries from being applied twice. On claude.ai, which has no filesystem, the queue is held in the conversation
-instead and the skill says so when you first queue something. Drafting checks that read
-the page also read the queue: acronym first use, dedupe, the In Scope versus Out of Scope
-contradiction check, and `/dd-audit`, which states what is pending rather than reporting a
-queued section as missing.
+those entries from being applied twice.
+
+On claude.ai, which has no filesystem, the queue is held in the conversation instead and the
+skill says so when you first queue something. Drafting checks that read the page also read
+the queue: acronym first use, dedupe, the In Scope versus Out of Scope contradiction check,
+and `/dd-audit`, which states what is pending rather than reporting a queued section as
+missing.
 
 **Batch versus one at a time.** Scope in and out, Components Impacted, Assumptions,
 Issues, Dependencies, and Constraints take every row the brain dump supports in a
@@ -142,14 +150,15 @@ already states its own consequence, the author's wording is kept.
 
 In claude.ai, where plugin slash commands are not available, the skill triggers from
 plain language: *"fill in Key Design Decisions from this: ..."*. The skill is written to
-work standalone and assumes no filesystem, no code execution, and no subagents. The
-commands are ergonomics for Claude Code only.
+work standalone and assumes no code execution and no subagents. It uses a filesystem for
+exactly one thing, persisting the pending write queue, and falls back to a conversation held
+queue where there is none. The commands are ergonomics for Claude Code only.
 
 Every invocation drafts and **stops for approval** before writing. That rule lives in
 the skill workflow, not the commands, so a malformed alias cannot bypass it. In Claude
-Code the gate is a pick list (write it / revise first / do not write) via
-`AskUserQuestion`; on claude.ai, which has no such tool, it falls back to a plain text
-question.
+Code the gate is a pick list via `AskUserQuestion` with four options (write it now, queue it
+and continue, revise first, do not write); on claude.ai, which has no such tool, it falls
+back to a plain text question.
 
 **Running several sessions at once.** Confluence has no section level update API: every
 write replaces the whole page body, so a session that writes a body it fetched before
@@ -166,10 +175,11 @@ it rewritten from memory.
 
 The skill dispatches on **capability, not tool name**, because the claude.ai Atlassian
 connector and the Claude Code Atlassian MCP server expose different tool names and may
-differ on storage format versus ADF. Four capabilities are probed at the start of an
-invocation: Confluence read, Confluence write, Confluence search, and diagram access.
-Each has a documented degraded path, so a missing Lucid server costs you inference
-quality on three sections rather than blocking the plugin.
+differ on storage format versus ADF. Six capabilities are probed at the start of an
+invocation: Confluence read, Confluence write, Confluence search, diagram access,
+interactive questions, and filesystem read and write. Each has a documented degraded path,
+so a missing Lucid server costs you inference quality on three sections rather than blocking
+the plugin, and a missing filesystem costs the queue its durability rather than the feature.
 
 ## Requirements
 
@@ -218,6 +228,16 @@ that instead, the skill dispatches on capability, not on which server is behind 
    Design Decisions row pulled from NZ DC Migration runs well past the "12 words or
    fewer" guideline. Flagged there as a `NOTE(Ryan)` rather than silently loosened,
    since it is a real, presumably endorsed row contradicting a prescriptive rule.
+7. **Exercise the queue end to end.** Queue two sections, then `/write-pending`. The
+   specific case worth checking is **two queued sections that share an acronym**, since the
+   flush is supposed to reconcile first use across the merged set and emit exactly one
+   expansion. Also confirm entries are removed only after a successful write.
+8. **Test `-r` against a section you have hand edited**, ideally one you edited in
+   Confluence or with Rovo. What must survive the round trip is a fact you added that the
+   skill has never seen. Confirm it is carried across verbatim rather than smoothed away.
+
+Items 7 and 8 cover code paths added on 2026-07-29 and 2026-07-30 that have not yet run
+against a real page.
 
 ## Conventions
 
@@ -233,9 +253,17 @@ grep -rP '\x{2014}|\x{2013}' .
 
 To add a section: append a tuple to `SECTIONS` in `tools/generate_commands.py`, rerun
 it, add a row to the section index in `SKILL.md`, and add the schema to whichever
-grouped reference file matches its behaviour. Three edits, no duplication. If the new
-section is a table, also add its slug to `SINGLE_ROW` or `BATCH_ROWS` in the generator,
-which decides the write mode note baked into the command.
+grouped reference file matches its behaviour. Three edits, no duplication.
+
+Also add the slug to whichever generator sets apply, since they decide which notes get baked
+into the command:
+
+| Set | For |
+|---|---|
+| `SINGLE_ROW` | Tables appending one row per invocation |
+| `BATCH_ROWS` | Tables taking every row in one pass |
+| `BARE_LIST` | Batch tables whose input is a bare list with a derived consequence column |
+| `REFINABLE` | Replace mode sections, which accept `-r` and gate before overwriting |
 
 To add a command that is not a section, add it to `STANDALONE` in the generator.
 
