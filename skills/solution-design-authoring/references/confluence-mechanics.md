@@ -165,6 +165,7 @@ The template drifts between designs. Accept these variants:
 | Regulatory, Compliance, and Privacy Considerations | Compliance Considerations, Regulatory Considerations, Privacy Considerations, Compliance & Privacy |
 | Licensing & Cost Considerations | Cost Considerations, Licensing Considerations, Commercial Considerations, Cost & Licensing |
 | Telemetry Considerations | Observability Considerations, Monitoring & Logging, Telemetry & Observability |
+| Integrations | Integration, Integrations Summary, Integration Points, Interfaces |
 | Infrastructure, Network, & Integration | Infrastructure & Integration, Network & Integration, Infrastructure, Integration Architecture |
 | Data and Information Considerations | Data Considerations, Information Management, Data Architecture |
 | Applicable Reference Architectures | Reference Architectures, Related Reference Architectures, Applicable RAs |
@@ -174,7 +175,7 @@ rename the user's heading to the canonical form.**
 
 ## Mapping table columns
 
-Eleven sections are tables. The schemas in the section reference files are the default
+Twelve sections are tables. The schemas in the section reference files are the default
 for a table you are building fresh. **For a table that already exists, the page wins.**
 
 1. Read the header row before drafting.
@@ -192,6 +193,8 @@ for a table you are building fresh. **For a table that already exists, the page 
 | Risks | Residual Rating | Residual, Post Mitigation Rating |
 | Glossary | Acronym/term | Term, Acronym, Item |
 | Components Impacted | Impacts | Impact, Change, Description of Change |
+| Integrations | Delivery Mode | Mode, Type, Integration Type, Pattern |
+| Integrations | Approach | Method, Mechanism, Description, Integration Approach |
 | Scope | Product/Business Owner | Owner, Business Owner, Product Owner |
 | Applicable Reference Architectures | Why this is relevant/applicable | Relevance, Rationale, Applicability |
 
@@ -280,6 +283,11 @@ Non obvious rules that cause most breakage:
 - Self close void elements: `<br />`, not `<br>`. The parser is strict.
 - Escape `&` as `&amp;` in text content, including inside headings you are matching
   against. `Licensing &amp; Cost Considerations` is what is actually in the markup.
+- **Escape `<` as `&lt;` and `>` as `&gt;` in text content.** This bites in the
+  Integrations table, where the Approach column uses arrow notation:
+  `Snowflake &lt;- ADF -&gt; Katabat`. An unescaped `<-` opens what the parser reads as a
+  tag, and the write either fails outright or swallows the rest of the row. Escaping is
+  needed only in storage format, not in ADF, where cell text is a JSON string.
 - No `<div>` or `<span>` wrappers around your content. They survive the write and then
   get stripped unpredictably by the editor.
 - Internal links are `<ac:link><ri:page ri:content-title="Page Title" /></ac:link>`, not

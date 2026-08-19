@@ -1,6 +1,6 @@
 ---
 name: solution-design-authoring
-description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
+description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Integrations, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
 ---
 
 # Solution Design Authoring
@@ -51,7 +51,7 @@ have:
 | Confluence read | Every section | Ask the user to paste the page content, then draft only |
 | Confluence write | Every section | Draft and output copy-pasteable content, tell the user the write is blocked |
 | Confluence search | Applicable Reference Architectures, Glossary cross-check | Ask the user for candidate RA links |
-| Lucid / diagram | Current Solution, Target Solution, Infrastructure | Ask for an image paste or a written description |
+| Lucid / diagram | Current Solution, Target Solution, Infrastructure, Integrations | Ask for an image paste or a written description |
 | Interactive question (`AskUserQuestion`) | The approval gate, and any either/or question | Ask the same question as plain text in chat |
 | Filesystem read and write | Persisting the pending write queue across invocations | Keep the queue in the conversation only, and say so once. See `references/pending-writes.md` |
 
@@ -154,11 +154,17 @@ as sufficient to proceed.
 | Licensing & Cost Considerations | Prose | Replace | `sections/considerations.md` |
 | Telemetry Considerations | Prose | Replace | `sections/considerations.md` |
 | Data and Information Considerations | Prose | Replace | `sections/considerations.md` |
+| Integrations | Table | Append rows, batch | `sections/tables-integrations.md` |
 | Infrastructure, Network, & Integration | Diagram + prose | Replace prose, keep diagram | `sections/considerations.md` |
 
 The ten sections with a **Replace** write mode accept `-r` to refine what is already on the
-page instead of drafting over it, and prompt before replacing non-empty content. The eleven
+page instead of drafting over it, and prompt before replacing non-empty content. The twelve
 table sections do neither: they append. See "Refining a section that already has content".
+
+**Integrations and Infrastructure, Network, & Integration cover the same flows at different
+depths.** Integrations is the one line index: what talks to what, how, and through which
+components. Ports, protocols, auth, payloads, and retry behaviour belong in the
+Infrastructure section. See `sections/tables-integrations.md`.
 
 ### Batch tables versus one at a time
 
@@ -262,6 +268,8 @@ content that genuinely needs the space.
   candidates the user has not yet turned into a row
 - Key Design Decisions has no row for a choice the narrative sections state as decided
 - Components Impacted lists fewer systems than the Target Solution diagram shows
+- Integrations lists fewer flows than the diagram has labelled connectors, or omits the
+  manual steps the conversation describes
 
 When drafting the first section of a new design, or in audit mode, form a view of
 where the work sits on this spectrum and say so once. It recalibrates how much is
@@ -342,9 +350,11 @@ When asked to review or audit a design rather than write a section:
    mitigations or Key Design Decisions with empty Other Options Considered), **Drifted**
    (content is there but off house style, see step 6), or **OK**.
 4. Cross check for consistency: acronyms used but absent from Glossary; components
-   named in Target Solution but missing from Components Impacted; decisions referenced
-   in narrative but absent from Key Design Decisions; risks with no residual rating;
-   assumptions marked validated with no validator named.
+   named in Target Solution but missing from Components Impacted; systems named as a
+   Source or Destination in Integrations but missing from Components Impacted, or named
+   differently in the two; decisions referenced in narrative but absent from Key Design
+   Decisions; risks with no residual rating; assumptions marked validated with no
+   validator named.
 5. Check right-sizing against the scope of work, per the section above: sections
    restating the same fact more than once, prose running long without new information,
    or an empty Risks or Assumptions table on a design that clearly has candidates for

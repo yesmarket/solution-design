@@ -8,7 +8,7 @@ a time. Runs in both Claude Code and claude.ai.
 All substance lives in **one skill**. The commands name a section, state its write mode,
 and hand off. They carry no schemas, no content rules, and no house style: the hard part is
 Confluence's read modify write model and the formatting conventions, and duplicating that
-across 25 command files would guarantee drift. Commands have grown past the original three
+across 26 command files would guarantee drift. Commands have grown past the original three
 lines as write-protocol reminders were added, but the rule holds, if a change would add
 substance to a command file it belongs in a reference file instead.
 
@@ -16,7 +16,7 @@ substance to a command file it belongs in a reference file instead.
 solution-design/
 ├── .claude-plugin/plugin.json
 ├── .mcp.json                        bundles the Atlassian and Lucid MCP servers
-├── commands/                        25 thin aliases pointing at the skill
+├── commands/                        26 thin aliases pointing at the skill
 ├── tools/generate_commands.py       regenerate the aliases from one table
 └── skills/solution-design-authoring/
     ├── SKILL.md                     workflow, section index, house style, audit mode
@@ -28,24 +28,27 @@ solution-design/
     │   ├── pending-writes.md        the queue: draft many sections, write once
     │   ├── refine.md                -r, the replace gate, what refine may not change
     │   └── sections/
-    │       ├── narrative.md         Background, Overview, Current, Target
-    │       ├── considerations.md    Security, Compliance, Cost, Telemetry, Data, Infra
-    │       ├── tables-decisions.md  Key Design Decisions, Components Impacted
-    │       ├── tables-registers.md  Risks, Assumptions, Issues, Dependencies, Constraints
-    │       └── tables-scope.md      Glossary, Scope In, Scope Out, Reference Architectures
+    │       ├── narrative.md            Background, Overview, Current, Target
+    │       ├── considerations.md       Security, Compliance, Cost, Telemetry, Data, Infra
+    │       ├── tables-decisions.md     Key Design Decisions, Components Impacted
+    │       ├── tables-integrations.md  Integrations
+    │       ├── tables-registers.md     Risks, Assumptions, Issues, Dependencies, Constraints
+    │       └── tables-scope.md         Glossary, Scope In, Scope Out, Reference Architectures
     └── assets/examples/
         ├── README.md                 how to use exemplars, why extracts beat whole PDFs
         └── sources.md                Confluence page links for the 3 house exemplars
 ```
 
-The 21 sections group into five behaviours: prose, diagram plus callouts, append one
+The 22 sections group into five behaviours: prose, diagram plus callouts, append one
 row, append all rows in one pass, and merge with dedupe. Sections are grouped into
 reference files by behaviour rather than one file per section, so only one grouped file
-loads per invocation.
+loads per invocation. Integrations has a file to itself: it is the only table section
+that reads the diagram, and folding it into the decision tables would pull two unrelated
+schemas into every invocation of either.
 
 ## Usage
 
-A representative sample. There is one command per section, 21 of them, plus 4 page level
+A representative sample. There is one command per section, 22 of them, plus 4 page level
 commands; run `/help` or see `commands/` for the full list.
 
 ```
@@ -54,6 +57,7 @@ commands; run `/help` or see `commands/` for the full list.
 /risk <brain dump>                      appends one row, DREAD or Possibility/Impact
 /assumption <brain dump>                appends every row the dump supports, one write
 /component-impacted <brain dump>        appends every row the dump supports, one write
+/integration <brain dump>               appends every flow the dump supports, one write
 /glossary                               no input, scans page and session
 /reference-architectures                no input, searches Confluence
 /target-solution <brain dump>           reads the diagram, writes callouts
@@ -254,6 +258,11 @@ grep -rP '\x{2014}|\x{2013}' .
 To add a section: append a tuple to `SECTIONS` in `tools/generate_commands.py`, rerun
 it, add a row to the section index in `SKILL.md`, and add the schema to whichever
 grouped reference file matches its behaviour. Three edits, no duplication.
+
+For a section whose heading or column names drift between designs, which is most of them,
+add the variants to the two alias tables in `references/confluence-mechanics.md` as well.
+A heading that does not match stops the write and asks, so an unlisted alias is a dead end
+rather than a silent mis-write.
 
 Also add the slug to whichever generator sets apply, since they decide which notes get baked
 into the command:

@@ -22,7 +22,7 @@ SINGLE_ROW = {"key-design-decision", "risk"}
 # Architectures are absent deliberately: both are derived merge-and-dedupe sections
 # that already write in a single pass, and neither takes a brain dump.
 BATCH_ROWS = {
-    "scope-in", "scope-out", "component-impacted",
+    "scope-in", "scope-out", "component-impacted", "integration",
     "assumption", "issue", "dependency", "constraint",
 }
 
@@ -67,6 +67,8 @@ SECTIONS = [
      "Draft the Telemetry Considerations section"),
     ("data", "Data and Information Considerations",
      "Draft the Data and Information Considerations section"),
+    ("integration", "Integrations",
+     "Add all Integrations rows the brain dump supports, in one pass"),
     ("infrastructure", "Infrastructure, Network, & Integration",
      "Draft Infrastructure, Network & Integration, inferring from the Lucid diagram"),
     ("risk", "Risks",
