@@ -1,14 +1,12 @@
 ---
-description: Add all In Scope rows the brain dump supports, in one pass
+description: Add all In Scope rows the brain dump supports, organized by category, in one pass
 ---
 
 Use the `solution-design-authoring` skill.
 
 Section: **Scope - In Scope**
 
-Write mode: **all rows in one pass.** Draft every row the brain dump supports, show the
-complete set as one table, approve once, write once. Do not split the rows across
-invocations.
+Write mode: **all rows in one pass, organized by category.** Draft every row the brain dump supports, grouped by category (Products, Channels, Components, Integrations, General), show the complete set as one table, approve once, write once. Do not split the rows across invocations.
 
 Follow the skill's workflow: check for pending writes on the target page, read the section
 reference file, fetch the current page body, draft, then show the proposed content and put

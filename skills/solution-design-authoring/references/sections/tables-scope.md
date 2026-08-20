@@ -80,14 +80,23 @@ copies the table.
 ## Scope - In Scope
 
 **Write mode:** append all rows the brain dump supports, in one pass. Draft the
-complete set, show it as one table, approve once, write once.
+complete set organized by category, show it as one table, approve once, write once.
 
 ### Schema
 
 | Column | Format |
 |---|---|
-| Scope Item | 1 sentence to 1 paragraph |
+| Category | Products, Channels, Components, Integrations, or General |
+| Scope Items | 1 sentence to 1 paragraph |
 | Product/Business Owner | Name |
+
+### Category Guidance
+
+- **Products** - Specific products in scope (e.g., Humm Loan, Q Card, Q MasterCard, HummCashbackRewards). Typically one item per row.
+- **Channels** - Channel apps in scope (e.g., B2C customer web portal, iOS native app, Android native app, B2B merchant portal). Typically one item per row.
+- **Components** - Technical components/systems in scope (e.g., Snowflake/DBT, Salesforce, Katabat, Azure/ADF, Elastic Cloud, Genesys, Banking Suite). Should roughly align with the Components Impacted section. Typically one item per row.
+- **Integrations** - High-level integrations or processes in scope (e.g., dialer kill integration, real-time katabat placement). Include brief descriptions to explain the process.
+- **General** - Everything else that doesn't fit other categories, or when unsure. Include brief descriptions.
 
 ### Rules
 
@@ -102,20 +111,31 @@ complete set, show it as one table, approve once, write once.
   guess, and do not put a team name in a column asking for a name without saying so.
 - **Read the Out of Scope table before appending.** The two must not contradict. Flag
   any overlap rather than writing it.
+- **Organize rows by category.** Group all Products items together, then Channels, then Components, then Integrations, then General. Present items within each category in order.
 
 ---
 
 ## Scope - Out of Scope
 
-**Write mode:** append all rows the brain dump supports, in one pass. Same as In Scope.
+**Write mode:** append all rows the brain dump supports, in one pass. Draft the
+complete set organized by category, show it as one table, approve once, write once.
 
 ### Schema
 
 | Column | Format |
 |---|---|
-| Scope Item | 1 sentence |
+| Category | Products, Channels, Components, Integrations, or General |
+| Scope Items | 1 sentence |
 | Rationale | 1 sentence |
 | Product/Business Owner | Name |
+
+### Category Guidance
+
+- **Products** - Specific products out of scope (e.g., Humm Loan, Q Card, Q MasterCard, HummCashbackRewards). Typically one item per row.
+- **Channels** - Channel apps out of scope (e.g., B2C customer web portal, iOS native app, Android native app, B2B merchant portal). Typically one item per row.
+- **Components** - Technical components/systems out of scope (e.g., Snowflake/DBT, Salesforce, Katabat, Azure/ADF, Elastic Cloud, Genesys, Banking Suite). Should roughly align with the Components Impacted section. Typically one item per row.
+- **Integrations** - High-level integrations or processes out of scope (e.g., dialer kill integration, real-time katabat placement). Include brief descriptions to explain the process.
+- **General** - Everything else that doesn't fit other categories, or when unsure. Include brief descriptions.
 
 ### Rules
 
@@ -130,6 +150,7 @@ complete set, show it as one table, approve once, write once.
 - If the brain dump for one scope table implies items for the other, note them in chat
   and offer. One section per invocation still holds: batching means all the rows for
   **this** table, not both tables at once.
+- **Organize rows by category.** Group all Products items together, then Channels, then Components, then Integrations, then General. Present items within each category in order.
 
 ---
 
