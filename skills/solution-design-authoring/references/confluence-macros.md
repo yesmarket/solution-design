@@ -6,6 +6,7 @@ Three table columns require macros rather than plain text:
 |---|---|---|
 | Key Design Decisions | Decision | Decision macro |
 | Components Impacted | Status | Status macro (coloured) |
+| Technical Debt | Severity | Status macro (coloured) |
 | Assumptions | Validated | Tick or cross |
 
 ## Discover before you emit
@@ -50,13 +51,24 @@ design.
 
 ## Status macro
 
-Used in Components Impacted. Three permitted values with fixed colours.
+Used in Components Impacted, and in Technical Debt for Severity. Each column has its
+own fixed set of three permitted values and colours; they share markup, not a value set.
+
+**Components Impacted:**
 
 | Value | Colour parameter |
 |---|---|
 | New | `Green` |
 | Existing | `Yellow` |
 | Decommission | `Red` |
+
+**Technical Debt, Severity column:**
+
+| Value | Colour parameter |
+|---|---|
+| Small | `Green` |
+| Medium | `Yellow` |
+| Large | `Red` |
 
 <!-- VERIFIED MARKUP: confirmed 2026-07-28 against Managed Instinct (5074124823),
      SSO/Federation HLD for Humm Loan (4798742565), and NZ DC Migration (5249073739),

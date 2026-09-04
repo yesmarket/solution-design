@@ -1,13 +1,14 @@
 # Register Tables
 
-Covers **Risks**, **Assumptions**, **Issues**, **Dependencies**, and **Constraints**.
+Covers **Risks**, **Assumptions**, **Issues**, **Dependencies**, **Constraints**, and
+**Technical Debt**.
 
-**Write mode differs across the five:**
+**Write mode differs across the six:**
 
 | Table | Write mode |
 |---|---|
 | Risks | Append **one** row per invocation |
-| Assumptions, Issues, Dependencies, Constraints | Append **all** rows the brain dump supports, in one pass |
+| Assumptions, Issues, Dependencies, Constraints, Technical Debt | Append **all** rows the brain dump supports, in one pass |
 
 Risks stay one at a time because the Possibility/Impact pair is a judgement the user
 has to weigh per row. The other four are usually enumerated in a single brain dump and
@@ -17,9 +18,9 @@ rows already on the page.
 
 ## Input convention: one line, one row
 
-For Assumptions, Issues, Dependencies, and Constraints the user's brain dump is usually
-a bare list. One item per line, with or without a leading `-` or `*`, no implications
-written out. Expect that as the normal case and read it literally:
+For Assumptions, Issues, Dependencies, Constraints, and Technical Debt the user's brain
+dump is usually a bare list. One item per line, with or without a leading `-` or `*`, no
+implications written out. Expect that as the normal case and read it literally:
 
 - **Each non-empty line is one row.** Do not merge two lines into a single row because
   they look related, and do not split one line into two rows unless it plainly carries
@@ -51,6 +52,10 @@ For Assumptions specifically, a bare line names no validator, so `Validated` def
 a cross and `By` to `TBC`. Do not read the absence of a validator as an invitation to
 tick.
 
+For Technical Debt specifically, the second column is **Justification**, not Impact:
+why the trade-off is being taken, not what it costs. A bare line names no owner, so
+`Owner` defaults to `TBC`. Do not invent a name.
+
 Classification still applies. A line that lands in the wrong table is worth flagging even
 when the other nine are fine, per the test below.
 
@@ -75,7 +80,7 @@ re-derivation.
 **Cell style.** Fragments, no trailing full stops on bullets, bullets for multi part
 content. Single sentence columns take a full stop.
 
-**Classification.** These five tables are routinely confused. Use this test:
+**Classification.** These six tables are routinely confused. Use this test:
 
 | It is a... | If... |
 |---|---|
@@ -84,10 +89,13 @@ content. Single sentence columns take a full stop.
 | Dependency | Someone outside this design must deliver something |
 | Assumption | You believe something is true but have not verified it |
 | Constraint | Something is imposed on the design and will not change |
+| Technical Debt | A deliberate shortcut is being taken now, that will need remediation later |
 
 "We assume the API can handle 500 TPS" is an assumption. "The API is rate limited to
-500 TPS" is a constraint. If the brain dump lands in the wrong table, say so and offer
-to write it to the right one instead.
+500 TPS" is a constraint. "We are hardcoding the tenant ID rather than building
+multi-tenancy now, to hit the pilot date" is technical debt: it is chosen, not imposed,
+and it is expected to be paid down. If the brain dump lands in the wrong table, say so
+and offer to write it to the right one instead.
 
 ## Contents
 
@@ -95,6 +103,7 @@ to write it to the right one instead.
 - [Risks](#risks)
 - [Assumptions](#assumptions)
 - [Issues, Dependencies, Constraints](#issues-dependencies-constraints)
+- [Technical Debt](#technical-debt)
 
 ---
 
@@ -340,3 +349,67 @@ not give, or a mitigation. The third row is a constraint rather than an assumpti
 because the user stated it as fact about the endpoint; had they written "we assume the
 endpoint supports SSH keys" it belongs in Assumptions, and the right move is to say so
 rather than write it here.
+
+---
+
+## Technical Debt
+
+### Schema
+
+| Column | Format |
+|---|---|
+| Description | Short description, 1 sentence |
+| Justification | Short sentence, why the trade-off is being taken |
+| Severity | Status label: `Small` (green), `Medium` (yellow), `Large` (red). See `../confluence-macros.md` |
+| Owner | A person's name, or `TBC` |
+
+### Column rules
+
+**Description** states what the shortcut or compromise actually is, concretely enough
+that a reader unfamiliar with the discussion understands what would need to change to
+pay it down. "The batch job runs on a schedule instead of being event driven" is a
+description; "the integration isn't ideal yet" is not.
+
+**Justification** is why the debt is being taken on deliberately, not what it costs.
+That distinction is what separates this table from Risks and Issues: technical debt is
+a choice made in exchange for something, usually time, cost, or reduced scope for a
+first release. "Ship the pilot on the existing schema rather than migrate now, to hit
+the September date" names the trade-off. If a line only states a consequence and no
+reason, ask rather than inventing a justification, since a debt entry with no reason
+reads as an oversight rather than a decision when it comes up in review.
+
+**Severity** is how much it will cost to leave unaddressed, not how likely it is to
+bite: a single low traffic workaround stays Small even if it is ugly, while a shortcut
+that blocks a second merchant onboarding or accumulates compounding cost the longer it
+sits is Large. Propose it directly as an authorial judgement, the same way Risk's
+Possibility/Impact pair is proposed rather than asked for, and mark it clearly for the
+user to confirm if the brain dump does not support a confident value. Never write a
+fourth severity value; if the brain dump implies debt so severe it should block release
+rather than be tracked, say so in chat and suggest a Risk or Issue row instead.
+
+**Owner** is a person, not a team, matching the convention elsewhere on the page.
+Blank or `TBC` when the brain dump does not name one. An unowned debt item is the one
+most likely to never get paid down, which is worth a line in chat when the table
+already has several `TBC` rows.
+
+### Worked example: bare list in, full table out
+
+Brain dump, exactly as pasted:
+
+```
+hardcoding the tenant id for now instead of building multi tenancy, need pilot done by end of Q3
+using the old auth service's session format so we don't have to touch two systems at once, jane owns cleaning this up post launch
+no retry logic on the outbound webhook yet, it's low volume for now
+```
+
+| Description | Justification | Severity | Owner |
+|---|---|---|---|
+| Tenant identifier is hardcoded rather than the design supporting multi-tenancy. | Chosen to hit the pilot delivery date at the end of Q3 rather than build multi-tenancy up front. | <span data-type="status" data-color="red" data-status-style="bold">large</span> | TBC |
+| The new service reuses the legacy authentication service's session format rather than its own. | Avoids changing two systems in the same release window. | <span data-type="status" data-color="yellow" data-status-style="bold">medium</span> | Jane |
+| The outbound webhook has no retry logic. | Accepted because current call volume is low enough that a dropped call is tolerable. | <span data-type="status" data-color="green" data-status-style="bold">small</span> | TBC |
+
+The first row is Large because a hardcoded tenant identifier blocks a second merchant
+outright, not because it is unlikely to matter. The second row names Jane because the
+user supplied an owner; the first and third default to `TBC` because they did not. All
+three Justification cells state the reason the shortcut was taken, not its downstream
+effect, that distinction is what keeps this table separate from Risks and Issues.

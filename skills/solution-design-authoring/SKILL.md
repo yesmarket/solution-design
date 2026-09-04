@@ -1,6 +1,6 @@
 ---
 name: solution-design-authoring
-description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Integrations, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
+description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Integrations, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, Technical Debt, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
 ---
 
 # Solution Design Authoring
@@ -149,6 +149,7 @@ as sufficient to proceed.
 | Issues | Table | Append rows, batch | `sections/tables-registers.md` |
 | Dependencies | Table | Append rows, batch | `sections/tables-registers.md` |
 | Constraints | Table | Append rows, batch | `sections/tables-registers.md` |
+| Technical Debt | Table | Append rows, batch | `sections/tables-registers.md` |
 | Security Considerations | Prose | Replace | `sections/considerations.md` |
 | Regulatory, Compliance, and Privacy Considerations | Prose | Replace | `sections/considerations.md` |
 | Licensing & Cost Considerations | Prose | Replace | `sections/considerations.md` |
@@ -158,7 +159,7 @@ as sufficient to proceed.
 | Infrastructure, Network, & Integration | Diagram + prose | Replace prose, keep diagram | `sections/considerations.md` |
 
 The ten sections with a **Replace** write mode accept `-r` to refine what is already on the
-page instead of drafting over it, and prompt before replacing non-empty content. The twelve
+page instead of drafting over it, and prompt before replacing non-empty content. The thirteen
 table sections do neither: they append. See "Refining a section that already has content".
 
 **Integrations and Infrastructure, Network, & Integration cover the same flows at different
@@ -200,15 +201,15 @@ Confluence. If `-r` arrives on a table section, say so and offer to append inste
 
 Full contract in `references/refine.md`.
 
-### Bare lists for Assumptions, Issues, Dependencies, and Constraints
+### Bare lists for Assumptions, Issues, Dependencies, Constraints, and Technical Debt
 
-For these four the brain dump is normally a plain list: one item per line, bullet markers
+For these five the brain dump is normally a plain list: one item per line, bullet markers
 present or absent, and no implications written out. Read it literally, one non-empty line
-to one row, and **derive the Implication or Impact column yourself** rather than asking
-the user for it. Where a line already carries its own consequence, use the user's wording
-instead of your own. Deriving means inferring from the item and what is already on the
-page, not inventing; thin lines get the bullets you can defend plus a gap noted in chat.
-Full rules and a worked example in `sections/tables-registers.md`.
+to one row, and **derive the Implication, Impact, or Justification column yourself**
+rather than asking the user for it. Where a line already carries its own consequence or
+reason, use the user's wording instead of your own. Deriving means inferring from the item
+and what is already on the page, not inventing; thin lines get the bullets you can defend
+plus a gap noted in chat. Full rules and a worked example in `sections/tables-registers.md`.
 
 Cross cutting references, read as needed:
 
