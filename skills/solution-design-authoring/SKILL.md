@@ -1,6 +1,6 @@
 ---
 name: solution-design-authoring
-description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Integrations, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, Technical Debt, and Applicable Reference Architectures. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
+description: Draft and write individual sections of a Solution Architecture Detailed Design page in Confluence, following the house template and formatting conventions. Use this whenever the user wants to fill in, draft, update, append to, refine, or review any section of a detailed design or HLD, including Background & Context, Recommended Solution Overview, Glossary, Scope, Current/Target Solution, Key Design Decisions, Components Impacted, Integrations, Security / Regulatory / Licensing / Telemetry / Data considerations, Infrastructure & Integration, Risks, Assumptions, Issues, Dependencies, Constraints, Technical Debt, Applicable Reference Architectures, and Related. Use it even when the user just pastes a brain dump of context and names a section, or says something like "add a design decision", "write up the scope", "populate the glossary", or "audit this design for gaps". Also use it when refining or tightening a section that already has content, including content edited by hand in Confluence or by Rovo, when reviewing an existing design page for completeness, when scanning a design for terms that belong in the Glossary, or when normalising how acronyms are expanded across a page.
 ---
 
 # Solution Design Authoring
@@ -142,6 +142,7 @@ as sufficient to proceed.
 | Scope - In Scope | Table | Append rows, batch | `sections/tables-scope.md` |
 | Scope - Out of Scope | Table | Append rows, batch | `sections/tables-scope.md` |
 | Applicable Reference Architectures | Table | Merge, dedupe | `sections/tables-scope.md` |
+| Related | Table | Merge, dedupe | `sections/tables-scope.md` |
 | Key Design Decisions | Table | Append **one** row | `sections/tables-decisions.md` |
 | Components Impacted | Table | Append rows, batch | `sections/tables-decisions.md` |
 | Risks | Table | Append **one** row | `sections/tables-registers.md` |

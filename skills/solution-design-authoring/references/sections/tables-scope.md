@@ -1,7 +1,7 @@
 # Scope, Glossary and Reference Architecture Tables
 
-Covers **Glossary**, **Scope - In Scope**, **Scope - Out of Scope**, and **Applicable
-Reference Architectures**.
+Covers **Glossary**, **Scope - In Scope**, **Scope - Out of Scope**, **Applicable
+Reference Architectures**, and **Related**.
 
 ## Contents
 
@@ -9,6 +9,7 @@ Reference Architectures**.
 - [Scope - In Scope](#scope---in-scope)
 - [Scope - Out of Scope](#scope---out-of-scope)
 - [Applicable Reference Architectures](#applicable-reference-architectures)
+- [Related](#related)
 
 ---
 
@@ -206,3 +207,59 @@ tables from here.
 
 If the Confluence search capability is unavailable, say so and ask the user for
 candidate links. Do not write a speculative table from memory.
+
+---
+
+## Related
+
+**Write mode:** merge with dedupe.
+
+**Input:** user-supplied links, one row per link. Additional free-text context may also
+be supplied and should inform the relevance sentence alongside the page content.
+
+Unlike Applicable Reference Architectures, this section does not search Confluence —
+the user names the pages. The judgement work is reading each one and working out why it
+is related, not finding it.
+
+### Schema
+
+| Column | Format |
+|---|---|
+| Link | Hyperlink to the Confluence page |
+| Why this is relevant/applicable | 1 sentence |
+
+Same two column schema as Applicable Reference Architectures. The Link column is a
+proper Confluence page link, not a bare URL. See `../confluence-mechanics.md` for the
+`<ac:link>` form.
+
+### Procedure
+
+1. Take the list of links supplied in context. Each link is exactly one row — do not
+   drop any, even if relevance is thin, unless the page cannot be read at all.
+2. Fetch each linked page via the Atlassian MCP server and read enough of it to
+   understand what it covers.
+3. Read this design's narrative sections (or the brain dump / session context) to have
+   a picture of what the design does, so the relevance sentence can be specific rather
+   than generic.
+4. If the user supplied additional free-text context alongside a link, weight that
+   context heavily when writing the relevance sentence — it is a direct hint from the
+   person who chose the link.
+5. Draft one relevance sentence per link, then present the proposed table for approval.
+6. If a link cannot be fetched (permissions, deleted page, bad URL), say so in chat and
+   still list it in the proposed table with the link and a note that content could not
+   be read, rather than silently dropping it. Ask the user for a relevance sentence in
+   that case rather than guessing.
+7. On approval, merge and write.
+
+### Relevance sentence
+
+One sentence saying **how the linked page relates to this design** — a shared
+component, a dependency, prior art, a related initiative, an upstream or downstream
+system, or overlapping scope. Not a summary of what the linked page is about.
+
+- Good: "Documents the customer identity service this design's login flow depends on."
+- Bad: "Describes the customer identity service and its endpoints."
+
+If context was supplied explaining why the link was shared, prefer grounding the
+sentence in that reason over independently inferred relevance, but verify it against
+the page content rather than restating the context verbatim.
